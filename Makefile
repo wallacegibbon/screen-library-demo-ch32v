@@ -40,7 +40,7 @@ $(ARCH) -W -g -Os \
 -I./src/screen-library-mcu/ch32v103/inc \
 
 CROSS_LD_FLAGS = \
--T./link.ld $(ARCH) -nostartfiles -specs=nano.specs \
+-T./link.ld $(ARCH) -nostartfiles --specs=nano.specs --specs=nosys.specs \
 -Wl,--gc-sections \
 -Wl,--no-relax \
 -Wl,-Map=$(BUILD_DIR)/$(TARGET_NAME).map,--cref \
@@ -56,22 +56,21 @@ $(BUILD_DIR)/$(TARGET_NAME).hex: $(BUILD_DIR)/$(TARGET_NAME).elf
 	@echo "\n\tdone.\n"
 
 $(BUILD_DIR)/$(TARGET_NAME).elf: $(CROSS_OBJECTS)
-	@echo "\n\tLinking..."
+	@echo "\n\tLinking to $@..."
 	@$(CROSS_LD) $(CROSS_LD_FLAGS) -o $@ $^
 
 $(BUILD_DIR)/%.c.o: %.c | $(BUILD_DIR)
-	@echo "\tCompiling $<..."
+	@echo "\tCC $<..."
 	@$(CROSS_CC) $(CROSS_C_ASM_FLAGS) -MMD -MF"$(@:%.o=%.d)" -c -o $@ $<
 
 $(BUILD_DIR)/%.S.o: %.S | $(BUILD_DIR)
-	@echo "\tCompiling $<..."
+	@echo "\tAS $<..."
 	@$(CROSS_CC) $(CROSS_C_ASM_FLAGS) -MMD -MF"$(@:%.o=%.d)" -c -o $@ $<
 
 $(BUILD_DIR):
 	@mkdir $@
 
-DEPENDENCY_FILES = $(patsubst %.S, %.S.d, $(ASM_FILES))
-DEPENDENCY_FILES += $(patsubst %.c, %.c.d, $(C_FILES))
+DEPENDENCY_FILES = $(wildcard $(BUILD_DIR)/*.d)
 -include $(DEPENDENCY_FILES)
 
 .PHONY: load openocd debug lss tags clean
