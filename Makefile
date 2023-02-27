@@ -18,10 +18,10 @@ CROSS_SIZE = "$(CROSS_COMPILER_PREFIX)size"
 OPENOCD = "$(OPENOCD_PATH)/bin/openocd"
 OPENOCD_ARGS = "-f $(OPENOCD_PATH)/bin/wch-riscv.cfg"
 
-CROSS_C_SOURCE_FILES = $(wildcard ./src/*.c)
-CROSS_C_SOURCE_FILES += $(wildcard ./src/screen-library-mcu/common/src/*.c)
-CROSS_C_SOURCE_FILES += $(wildcard ./src/screen-library-mcu/ch32v103/src/*.c)
 CROSS_C_SOURCE_FILES += $(wildcard $(STDPERIPH_DIR)/src/*.c)
+CROSS_C_SOURCE_FILES += $(wildcard ./src/screen-library-mcu/*.c)
+CROSS_C_SOURCE_FILES += $(wildcard ./src/screen-library-mcu/ch32v103/*.c)
+CROSS_C_SOURCE_FILES += $(wildcard ./src/*.c)
 
 CROSS_ASM_SOURCE_FILES = ./start.S
 
@@ -35,9 +35,9 @@ CROSS_C_ASM_FLAGS = \
 $(ARCH) -W -g -Os \
 -ffunction-sections -fdata-sections -fno-common -fno-builtin \
 -I$(STDPERIPH_DIR)/inc \
+-I./src/screen-library-mcu/ch32v103 \
+-I./src/screen-library-mcu \
 -I./src \
--I./src/screen-library-mcu/common/inc \
--I./src/screen-library-mcu/ch32v103/inc \
 
 CROSS_LD_FLAGS = \
 -T./link.ld $(ARCH) -nostartfiles --specs=nano.specs --specs=nosys.specs \
