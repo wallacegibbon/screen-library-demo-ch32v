@@ -6,7 +6,7 @@ static uint16_t p_ms = 0;
 
 void Delay_Init(void) {
 	p_us = SystemCoreClock / 8000000;
-	p_ms = (uint16_t) p_us *1000;
+	p_ms = (uint16_t) p_us * 1000;
 }
 
 void Delay_Us(uint32_t n) {
@@ -28,7 +28,7 @@ void Delay_Ms(uint32_t n) {
 	uint32_t i;
 
 	SysTick->CTLR = 0;
-	i = (uint32_t) n *p_ms;
+	i = (uint32_t) n * p_ms;
 
 	SysTick->CNTL0 = 0;
 	SysTick->CNTL1 = 0;
@@ -75,8 +75,7 @@ void USART_Printf_Init(uint32_t baudrate) {
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	USART_InitStructure.USART_Parity = USART_Parity_No;
-	USART_InitStructure.USART_HardwareFlowControl =
-	    USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	USART_InitStructure.USART_Mode = USART_Mode_Tx;
 
 #if(DEBUG == DEBUG_UART1)
