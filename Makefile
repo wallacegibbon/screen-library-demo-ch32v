@@ -16,14 +16,14 @@ CROSS_OBJCOPY = "$(CROSS_COMPILER_PREFIX)objcopy"
 CROSS_OBJDUMP = "$(CROSS_COMPILER_PREFIX)objdump"
 CROSS_SIZE = "$(CROSS_COMPILER_PREFIX)size"
 OPENOCD = "$(OPENOCD_PATH)/bin/openocd"
-OPENOCD_ARGS = "-f $(OPENOCD_PATH)/bin/wch-riscv.cfg"
+OPENOCD_ARGS = -f "$(OPENOCD_PATH)/bin/wch-riscv.cfg"
 
 CROSS_C_SOURCE_FILES += $(wildcard $(STDPERIPH_DIR)/src/*.c)
 CROSS_C_SOURCE_FILES += $(wildcard ./src/screen-library-mcu/*.c)
 CROSS_C_SOURCE_FILES += $(wildcard ./src/screen-library-mcu/ch32v103/*.c)
 CROSS_C_SOURCE_FILES += $(wildcard ./src/*.c)
 
-CROSS_ASM_SOURCE_FILES = ./start.S
+CROSS_ASM_SOURCE_FILES = $(wildcard ./*.S)
 
 CROSS_OBJECTS += $(addprefix $(BUILD_DIR)/, $(notdir $(CROSS_C_SOURCE_FILES:.c=.c.o)))
 CROSS_OBJECTS += $(addprefix $(BUILD_DIR)/, $(notdir $(CROSS_ASM_SOURCE_FILES:.S=.S.o)))
@@ -40,7 +40,7 @@ $(ARCH) -W -g -Os \
 -I./src \
 
 CROSS_LD_FLAGS = \
--T./link.ld $(ARCH) -nostartfiles --specs=nano.specs --specs=nosys.specs \
+$(ARCH) -T./link.ld -nostartfiles -specs=nosys.specs \
 -Wl,--gc-sections \
 -Wl,--no-relax \
 -Wl,-Map=$(BUILD_DIR)/$(TARGET_NAME).map,--cref \
@@ -48,16 +48,20 @@ CROSS_LD_FLAGS = \
 all: $(BUILD_DIR)/$(TARGET_NAME).hex $(BUILD_DIR)/$(TARGET_NAME).bin
 
 $(BUILD_DIR)/$(TARGET_NAME).hex: $(BUILD_DIR)/$(TARGET_NAME).elf
-	@echo "\tGenerating hex and bin files..."
-	@$(CROSS_OBJCOPY) -Obinary $< $(TARGET_NAME).bin
-	@$(CROSS_OBJCOPY) -Oihex $< $(TARGET_NAME).hex
-	@echo "\n\tMemory Usage:\n"
-	@$(CROSS_SIZE) $<
-	@echo "\n\tdone.\n"
+	@echo "\tGenerating hex file..."
+	@$(CROSS_OBJCOPY) -Oihex $< $@
+
+$(BUILD_DIR)/$(TARGET_NAME).bin: $(BUILD_DIR)/$(TARGET_NAME).elf
+	@echo "\tGenerating bin file..."
+	@$(CROSS_OBJCOPY) -Obinary $< $@
 
 $(BUILD_DIR)/$(TARGET_NAME).elf: $(CROSS_OBJECTS)
 	@echo "\n\tLinking to $@..."
 	@$(CROSS_LD) $(CROSS_LD_FLAGS) -o $@ $^
+	@$(CROSS_OBJDUMP) -S -D $@ > $@.lss
+	@echo "\tMemory Usage:"
+	@$(CROSS_SIZE) $@
+	@echo
 
 $(BUILD_DIR)/%.c.o: %.c | $(BUILD_DIR)
 	@echo "\tCC $<..."
@@ -73,32 +77,27 @@ $(BUILD_DIR):
 DEPENDENCY_FILES = $(wildcard $(BUILD_DIR)/*.d)
 -include $(DEPENDENCY_FILES)
 
-.PHONY: load openocd debug lss tags clean
+.PHONY: flash erase reset openocd debug clean
 
-load:
-	@echo "\tLoad program to the target machine..."
-	@$(OPENOCD) $(OPENOCD_ARGS) -d1 \
-		-c "program $(TARGET_NAME).hex verify reset exit"
+flash:
+	@$(OPENOCD) $(OPENOCD_ARGS) -c init -c halt \
+		-c "program $(BUILD_DIR)/$(TARGET_NAME).hex" -c exit
+
+erase:
+	@$(OPENOCD) $(OPENOCD_ARGS) -c init -c halt \
+		-c "flash erase_sector wch_riscv 0 last" -c exit
+
+reset:
+	@$(OPENOCD) $(OPENOCD_ARGS) -c init -c halt \
+		-c wlink_reset_resume -c exit
 
 openocd:
-	@echo "\tStarting the OpenOCD server..."
 	@$(OPENOCD) $(OPENOCD_ARGS)
 
 debug:
-	@echo "\tStarting GDB and connect to OpenOCD..."
-	@$(CROSS_GDB) $(TARGET_NAME).elf \
+	@$(CROSS_GDB) $(BUILD_DIR)/$(TARGET_NAME).elf \
 		--eval-command="target extended-remote localhost:3333"
 
-tags:
-	@echo "\tGenerating ctag file..."
-	@find $(LIBDIR) . -regex '.*\.[ch]' -exec realpath {} \; \
-		| sort | uniq | xargs ctags
-
-lss:
-	@echo "\tGenerating disassembled file..."
-	@$(CROSS_OBJDUMP) -S -D $(TARGET_NAME).elf > $(TARGET_NAME).lss
-
 clean:
-	@echo "\tRemoving generated files..."
 	@rm -rf $(BUILD_DIR)
 

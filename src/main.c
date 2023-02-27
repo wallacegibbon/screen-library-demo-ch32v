@@ -5,6 +5,7 @@
 #include "painter.h"
 #include "common.h"
 #include "color.h"
+#include "debug.h"
 #include <stdio.h>
 
 void fancy_display_1(struct Painter *painter) {
@@ -31,7 +32,7 @@ void initialize_screen_1(
 	struct SSD1306_Screen *screen1,
 	struct SSD1306_ScreenAdaptorCH32V103I2C *adaptor1
 ) {
-	printf("initializing SSD1306...\n");
+	printf("initializing SSD1306...\r\n");
 
 	SSD1306_ScreenAdaptorCH32V103I2C_initialize(
 		adaptor1, 0x3C
@@ -42,7 +43,7 @@ void initialize_screen_1(
 		(struct SSD1306_ScreenAdaptorInterface *) adaptor1
 	);
 
-	printf("SSD1306 screen on...\n");
+	printf("SSD1306 screen on...\r\n");
 	SSD1306_Screen_display_on(screen1);
 }
 
@@ -51,7 +52,7 @@ void initialize_screen_2(
 	struct ST7735_Screen *screen2,
 	struct ST7735_ScreenAdaptorCH32V103SPI *adaptor2
 ) {
-	printf("initializing ST7735...\n");
+	printf("initializing ST7735...\r\n");
 
 	ST7735_ScreenAdaptorCH32V103SPI_initialize(
 		adaptor2, ...
@@ -73,6 +74,11 @@ void main() {
 	struct Point p1;
 	struct Point p2;
 
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	Delay_Init();
+	USART_Printf_Init(9600);
+	printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
+
 	initialize_screen_1(&screen1, &adaptor1);
 	//initialize_screen_2(&screen2, &adaptor2);
 
@@ -81,26 +87,26 @@ void main() {
 	painter.screen = (struct DrawingBoardInterface *) &screen1;
 	//painter.screen = (struct DrawingBoardInterface *) &screen2;
 
-	printf("clearing screen...\n");
+	printf("clearing screen...\r\n");
 	Painter_clear(&painter, BLACK_16bit);
 
-	printf("drawing a rectangle...\n");
+	printf("drawing a rectangle...\r\n");
 	Point_initialize(&p1, 64 - 50, 32 - 20);
 	Point_initialize(&p2, 64 + 50, 32 + 20);
 	Painter_draw_rectangle(&painter, p1, p2, BLUE_16bit);
 
-	printf("drawing a circle on top left...\n");
+	printf("drawing a circle on top left...\r\n");
 	Point_initialize(&p1, 64 - 50, 32 - 20);
 	Painter_draw_circle(&painter, p1, 5, RED_16bit);
 
 	/*
-	printf("drawing a line...\n");
+	printf("drawing a line...\r\n");
 	Point_initialize(&p1, 30, 10);
 	Point_initialize(&p2, 20, 50);
 	Painter_draw_line(&painter, p1, p2, WHITE_1bit);
 	*/
 
-	printf("flushing the screen...\n");
+	printf("flushing the screen...\r\n");
 	Painter_flush(&painter);
 
 	while (1) {

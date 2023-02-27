@@ -1,3 +1,6 @@
+	.extern SystemInit
+	.extern main
+
 	.section .init, "ax", @progbits
 	.global _start
 	.align 1
@@ -23,7 +26,7 @@ _start:
 	.set \handler, default_interrupt_handler
 	.endm
 
-	.section .vector, "ax", @progbits
+	.section .vector_table, "ax", @progbits
 	.align 1
 _vector_base:
 	.option norvc;
@@ -137,9 +140,11 @@ handle_reset:
 	ori t0, t0, 1
 	csrw mtvec, t0
 
+	/*
 	la a0,__libc_fini_array
 	call atexit
 	call __libc_init_array
+	*/
 
 	jal SystemInit
 	la t0, main
