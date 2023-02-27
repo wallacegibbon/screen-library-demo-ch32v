@@ -77,18 +77,12 @@ $(BUILD_DIR):
 DEPENDENCY_FILES = $(wildcard $(BUILD_DIR)/*.d)
 -include $(DEPENDENCY_FILES)
 
-.PHONY: flash erase reset openocd debug clean
+.PHONY: flash openocd debug clean
 
 flash:
 	@$(OPENOCD) $(OPENOCD_ARGS) -c init -c halt \
-		-c "program $(BUILD_DIR)/$(TARGET_NAME).hex" -c exit
-
-erase:
-	@$(OPENOCD) $(OPENOCD_ARGS) -c init -c halt \
-		-c "flash erase_sector wch_riscv 0 last" -c exit
-
-reset:
-	@$(OPENOCD) $(OPENOCD_ARGS) -c init -c halt \
+		-c "flash erase_sector wch_riscv 0 last" \
+		-c "program $(BUILD_DIR)/$(TARGET_NAME).hex" \
 		-c wlink_reset_resume -c exit
 
 openocd:
