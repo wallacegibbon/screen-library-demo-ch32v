@@ -1,14 +1,15 @@
 CROSS_COMPILER_PREFIX = $(HOME)/MRS_Toolchain_Linux_x64_V1.60/RISC-V Embedded GCC/bin/riscv-none-embed-
 OPENOCD_PATH = $(HOME)/MRS_Toolchain_Linux_x64_V1.60/OpenOCD
 
-BUILD_DIR = build
+## To change target name: `TARGET=xxx make`(unix only) or `make TARGET=xxx`
 TARGET = app
+BUILD_DIR = build
 
-STDPERIPH_DIR = $(HOME)/CH32_standard_peripherals_library/CH32V103
+LIB_PERIPHERAL_DIR = $(HOME)/CH32_standard_peripheral_library/CH32V103
 ARCH = -march=rv32imac -mabi=ilp32
 #ARCH = -march=rv32ec -mabi=ilp32e
 
-CROSS_C_SOURCE_FILES += $(wildcard $(STDPERIPH_DIR)/src/*.c)
+CROSS_C_SOURCE_FILES += $(wildcard $(LIB_PERIPHERAL_DIR)/src/*.c)
 CROSS_C_SOURCE_FILES += $(wildcard ./src/screen-library-mcu/*.c)
 CROSS_C_SOURCE_FILES += $(wildcard ./src/screen-library-mcu/ch32v103/*.c)
 CROSS_C_SOURCE_FILES += $(wildcard ./src/*.c)
@@ -23,7 +24,7 @@ vpath %.S $(sort $(dir $(CROSS_ASM_SOURCE_FILES)))
 
 CROSS_C_ASM_FLAGS = $(ARCH) -W -g -Os -ffunction-sections -fdata-sections \
 -fno-common -fno-builtin \
--I$(STDPERIPH_DIR)/inc \
+-I$(LIB_PERIPHERAL_DIR)/inc \
 -I./src/screen-library-mcu/ch32v103 -I./src/screen-library-mcu -I./src \
 
 CROSS_LD_FLAGS = $(ARCH) -T./link.ld -nostartfiles -specs=nosys.specs \
