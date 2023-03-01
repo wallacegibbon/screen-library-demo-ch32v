@@ -35,34 +35,33 @@ __I uint8_t AHBPrescTable[16] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9
 };
 
-/// ch32v10x_system_private_function_proto_types 
 static void SetSysClock();
 
 #ifdef SYSCLK_FREQ_HSE
-static void SetSysClockToHSE(void);
+static void SetSysClockToHSE();
 #elif defined SYSCLK_FREQ_48MHz_HSE
-static void SetSysClockTo48_HSE(void);
+static void SetSysClockTo48_HSE();
 #elif defined SYSCLK_FREQ_56MHz_HSE
-static void SetSysClockTo56_HSE(void);
+static void SetSysClockTo56_HSE();
 #elif defined SYSCLK_FREQ_72MHz_HSE
-static void SetSysClockTo72_HSE(void);
+static void SetSysClockTo72_HSE();
 #elif defined SYSCLK_FREQ_48MHz_HSI
-static void SetSysClockTo48_HSI(void);
+static void SetSysClockTo48_HSI();
 #elif defined SYSCLK_FREQ_56MHz_HSI
-static void SetSysClockTo56_HSI(void);
+static void SetSysClockTo56_HSI();
 #elif defined SYSCLK_FREQ_72MHz_HSI
-static void SetSysClockTo72_HSI(void);
+static void SetSysClockTo72_HSI();
 
 #endif
 
 /// Setup the microcontroller system Initialize the Embedded Flash Interface,
 /// the PLL and update the SystemCoreClock variable.
 void SystemInit() {
-	RCC->CTLR |= (uint32_t) 0x00000001;
-	RCC->CFGR0 &= (uint32_t) 0xF8FF0000;
-	RCC->CTLR &= (uint32_t) 0xFEF6FFFF;
-	RCC->CTLR &= (uint32_t) 0xFFFBFFFF;
-	RCC->CFGR0 &= (uint32_t) 0xFF80FFFF;
+	RCC->CTLR |= 0x00000001;
+	RCC->CFGR0 &= 0xF8FF0000;
+	RCC->CTLR &= 0xFEF6FFFF;
+	RCC->CTLR &= 0xFFFBFFFF;
+	RCC->CFGR0 &= 0xFF80FFFF;
 	RCC->INTR = 0x009F0000;
 	SetSysClock();
 }
@@ -142,27 +141,25 @@ static void SetSysClockToHSE() {
 		HSEStatus = 0;
 
 	if (HSEStatus != 0x01) {
-		/// If HSE fails to start-up,
-		/// the application will have wrong clock configuration.
-		/// User can add here some code to deal with this error
+		/// ...
 		return;
 	}
 
 	FLASH->ACTLR |= FLASH_ACTLR_PRFTBE;
 	/// Flash 0 wait state
-	FLASH->ACTLR &= (uint32_t) ~FLASH_ACTLR_LATENCY;
-	FLASH->ACTLR |= (uint32_t) FLASH_ACTLR_LATENCY_0;
+	FLASH->ACTLR &= ~FLASH_ACTLR_LATENCY;
+	FLASH->ACTLR |= FLASH_ACTLR_LATENCY_0;
 
 	/// HCLK = SYSCLK
-	RCC->CFGR0 |= (uint32_t) RCC_HPRE_DIV1;
+	RCC->CFGR0 |= RCC_HPRE_DIV1;
 	/// PCLK2 = HCLK
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE2_DIV1;
+	RCC->CFGR0 |= RCC_PPRE2_DIV1;
 	/// PCLK1 = HCLK
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE1_DIV1;
+	RCC->CFGR0 |= RCC_PPRE1_DIV1;
 
 	/// Select HSE as system clock source
-	RCC->CFGR0 &= (uint32_t) ((uint32_t) ~ (RCC_SW));
-	RCC->CFGR0 |= (uint32_t) RCC_SW_HSE;
+	RCC->CFGR0 &= ~RCC_SW;
+	RCC->CFGR0 |= RCC_SW_HSE;
 
 	/// Wait till HSE is used as system clock source
 	while ((RCC->CFGR0 & RCC_SWS) != 0x04);
@@ -185,9 +182,7 @@ static void SetSysClockTo48_HSE() {
 		HSEStatus = 0;
 
 	if (HSEStatus != 0x01) {
-		 /// If HSE fails to start-up,
-		 /// the application will have wrong clock configuration.
-		 /// User can add here some code to deal with this error
+		 /// ...
 		 return;
 	}
 
@@ -195,21 +190,19 @@ static void SetSysClockTo48_HSE() {
 	FLASH->ACTLR |= FLASH_ACTLR_PRFTBE;
 
 	/// Flash 1 wait state
-	FLASH->ACTLR &= (uint32_t) ~FLASH_ACTLR_LATENCY;
-	FLASH->ACTLR |= (uint32_t) FLASH_ACTLR_LATENCY_1;
+	FLASH->ACTLR &= ~FLASH_ACTLR_LATENCY;
+	FLASH->ACTLR |= FLASH_ACTLR_LATENCY_1;
 
 	/// HCLK = SYSCLK
-	RCC->CFGR0 |= (uint32_t) RCC_HPRE_DIV1;
+	RCC->CFGR0 |= RCC_HPRE_DIV1;
 	/// PCLK2 = HCLK
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE2_DIV1;
+	RCC->CFGR0 |= RCC_PPRE2_DIV1;
 	/// PCLK1 = HCLK */
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE1_DIV2;
+	RCC->CFGR0 |= RCC_PPRE1_DIV2;
 
 	/// PLL configuration: PLLCLK = HSE * 6 = 48 MHz */
-	RCC->CFGR0 &= (uint32_t)
-		~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
-
-	RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSE | RCC_PLLMULL6);
+	RCC->CFGR0 &= ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
+	RCC->CFGR0 |= RCC_PLLSRC_HSE | RCC_PLLMULL6;
 
 	/// Enable PLL
 	RCC->CTLR |= RCC_PLLON;
@@ -218,8 +211,8 @@ static void SetSysClockTo48_HSE() {
 	while ((RCC->CTLR & RCC_PLLRDY) == 0);
 
 	/// Select PLL as system clock source
-	RCC->CFGR0 &= (uint32_t) ~RCC_SW;
-	RCC->CFGR0 |= (uint32_t) RCC_SW_PLL;
+	RCC->CFGR0 &= ~RCC_SW;
+	RCC->CFGR0 |= RCC_SW_PLL;
 
 	/// Wait till PLL is used as system clock source
 	while ((RCC->CFGR0 & RCC_SWS) != 0x08);
@@ -242,9 +235,7 @@ static void SetSysClockTo56_HSE() {
 		HSEStatus = 0;
 
 	if (HSEStatus != 0x01) {
-		/// If HSE fails to start-up,
-		/// the application will have wrong clock configuration.
-		/// User can add here some code to deal with this error
+		/// ...
 		return;
 	}
 
@@ -252,21 +243,19 @@ static void SetSysClockTo56_HSE() {
 	FLASH->ACTLR |= FLASH_ACTLR_PRFTBE;
 
 	/// Flash 2 wait state
-	FLASH->ACTLR &= (uint32_t) ~FLASH_ACTLR_LATENCY;
-	FLASH->ACTLR |= (uint32_t) FLASH_ACTLR_LATENCY_2;
+	FLASH->ACTLR &= ~FLASH_ACTLR_LATENCY;
+	FLASH->ACTLR |= FLASH_ACTLR_LATENCY_2;
 
 	/// HCLK = SYSCLK
-	RCC->CFGR0 |= (uint32_t) RCC_HPRE_DIV1;
+	RCC->CFGR0 |= RCC_HPRE_DIV1;
 	/// PCLK2 = HCLK
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE2_DIV1;
+	RCC->CFGR0 |= RCC_PPRE2_DIV1;
 	/// PCLK1 = HCLK
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE1_DIV2;
+	RCC->CFGR0 |= RCC_PPRE1_DIV2;
 
 	/// PLL configuration: PLLCLK = HSE * 7 = 56 MHz
-	RCC->CFGR0 &= (uint32_t)
-		~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
-
-	RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSE | RCC_PLLMULL7);
+	RCC->CFGR0 &= ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
+	RCC->CFGR0 |= RCC_PLLSRC_HSE | RCC_PLLMULL7;
 	/// Enable PLL
 	RCC->CTLR |= RCC_PLLON;
 
@@ -274,8 +263,8 @@ static void SetSysClockTo56_HSE() {
 	while ((RCC->CTLR & RCC_PLLRDY) == 0);
 
 	/// Select PLL as system clock source
-	RCC->CFGR0 &= (uint32_t) ~RCC_SW;
-	RCC->CFGR0 |= (uint32_t) RCC_SW_PLL;
+	RCC->CFGR0 &= ~RCC_SW;
+	RCC->CFGR0 |= RCC_SW_PLL;
 
 	/// Wait till PLL is used as system clock source
 	while ((RCC->CFGR0 & RCC_SWS) != 0x08);
@@ -298,9 +287,7 @@ static void SetSysClockTo72_HSE() {
 		HSEStatus = 0;
 
 	if (HSEStatus != 0x01) {
-		 /// If HSE fails to start-up,
-		 /// the application will have wrong clock configuration.
-		 /// User can add here some code to deal with this error
+		 /// ...
 		return;
 	}
 
@@ -308,21 +295,19 @@ static void SetSysClockTo72_HSE() {
 	FLASH->ACTLR |= FLASH_ACTLR_PRFTBE;
 
 	/// Flash 2 wait state
-	FLASH->ACTLR &= (uint32_t) ~FLASH_ACTLR_LATENCY;
-	FLASH->ACTLR |= (uint32_t) FLASH_ACTLR_LATENCY_2;
+	FLASH->ACTLR &= ~FLASH_ACTLR_LATENCY;
+	FLASH->ACTLR |= FLASH_ACTLR_LATENCY_2;
 
 	/// HCLK = SYSCLK
-	RCC->CFGR0 |= (uint32_t) RCC_HPRE_DIV1;
+	RCC->CFGR0 |= RCC_HPRE_DIV1;
 	/// PCLK2 = HCLK
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE2_DIV1;
+	RCC->CFGR0 |= RCC_PPRE2_DIV1;
 	/// PCLK1 = HCLK
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE1_DIV2;
+	RCC->CFGR0 |= RCC_PPRE1_DIV2;
 
 	/// PLL configuration: PLLCLK = HSE * 9 = 72 MHz
-	RCC->CFGR0 &= (uint32_t)
-		~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
-
-	RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSE | RCC_PLLMULL9);
+	RCC->CFGR0 &= ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
+	RCC->CFGR0 |= RCC_PLLSRC_HSE | RCC_PLLMULL9;
 	/// Enable PLL 
 	RCC->CTLR |= RCC_PLLON;
 
@@ -330,8 +315,8 @@ static void SetSysClockTo72_HSE() {
 	while ((RCC->CTLR & RCC_PLLRDY) == 0);
 
 	/// Select PLL as system clock source 
-	RCC->CFGR0 &= (uint32_t) ~RCC_SW;
-	RCC->CFGR0 |= (uint32_t) RCC_SW_PLL;
+	RCC->CFGR0 &= ~RCC_SW;
+	RCC->CFGR0 |= RCC_SW_PLL;
 
 	/// Wait till PLL is used as system clock source 
 	while ((RCC->CFGR0 & RCC_SWS) != 0x08);
@@ -346,20 +331,19 @@ static void SetSysClockTo48_HSI() {
 	FLASH->ACTLR |= FLASH_ACTLR_PRFTBE;
 
 	/// Flash 1 wait state
-	FLASH->ACTLR &= (uint32_t) ~FLASH_ACTLR_LATENCY;
-	FLASH->ACTLR |= (uint32_t) FLASH_ACTLR_LATENCY_1;
+	FLASH->ACTLR &= ~FLASH_ACTLR_LATENCY;
+	FLASH->ACTLR |= FLASH_ACTLR_LATENCY_1;
 
 	/// HCLK = SYSCLK
-	RCC->CFGR0 |= (uint32_t) RCC_HPRE_DIV1;
+	RCC->CFGR0 |= RCC_HPRE_DIV1;
 	/// PCLK2 = HCLK
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE2_DIV1;
+	RCC->CFGR0 |= RCC_PPRE2_DIV1;
 	/// PCLK1 = HCLK
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE1_DIV2;
+	RCC->CFGR0 |= RCC_PPRE1_DIV2;
 
 	/// PLL configuration: PLLCLK = HSI * 6 = 48 MHz
-	RCC->CFGR0 &= (uint32_t) ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
-
-	RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSI_Div2 | RCC_PLLMULL6);
+	RCC->CFGR0 &= ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
+	RCC->CFGR0 |= RCC_PLLSRC_HSI_Div2 | RCC_PLLMULL6;
 
 	/// Enable PLL 
 	RCC->CTLR |= RCC_PLLON;
@@ -367,8 +351,8 @@ static void SetSysClockTo48_HSI() {
 	while ((RCC->CTLR & RCC_PLLRDY) == 0);
 
 	/// Select PLL as system clock source 
-	RCC->CFGR0 &= (uint32_t) ~RCC_SW;
-	RCC->CFGR0 |= (uint32_t) RCC_SW_PLL;
+	RCC->CFGR0 &= ~RCC_SW;
+	RCC->CFGR0 |= RCC_SW_PLL;
 
 	/// Wait till PLL is used as system clock source 
 	while ((RCC->CFGR0 & RCC_SWS) != 0x08);
@@ -385,19 +369,19 @@ static void SetSysClockTo56_HSI() {
 	FLASH->ACTLR |= FLASH_ACTLR_PRFTBE;
 
 	/// Flash 1 wait state 
-	FLASH->ACTLR &= (uint32_t) ~FLASH_ACTLR_LATENCY;
-	FLASH->ACTLR |= (uint32_t) FLASH_ACTLR_LATENCY_1;
+	FLASH->ACTLR &= ~FLASH_ACTLR_LATENCY;
+	FLASH->ACTLR |= FLASH_ACTLR_LATENCY_1;
 
 	/// HCLK = SYSCLK 
-	RCC->CFGR0 |= (uint32_t) RCC_HPRE_DIV1;
+	RCC->CFGR0 |= RCC_HPRE_DIV1;
 	/// PCLK2 = HCLK 
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE2_DIV1;
+	RCC->CFGR0 |= RCC_PPRE2_DIV1;
 	/// PCLK1 = HCLK 
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE1_DIV2;
+	RCC->CFGR0 |= RCC_PPRE1_DIV2;
 
 	/// PLL configuration: PLLCLK = HSI * 7 = 56 MHz 
-	RCC->CFGR0 &= (uint32_t) ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
-	RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSI_Div2 | RCC_PLLMULL7);
+	RCC->CFGR0 &= ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
+	RCC->CFGR0 |= RCC_PLLSRC_HSI_Div2 | RCC_PLLMULL7;
 
 	/// Enable PLL 
 	RCC->CTLR |= RCC_PLLON;
@@ -405,8 +389,8 @@ static void SetSysClockTo56_HSI() {
 	while ((RCC->CTLR & RCC_PLLRDY) == 0);
 
 	/// Select PLL as system clock source 
-	RCC->CFGR0 &= (uint32_t) ~(RCC_SW);
-	RCC->CFGR0 |= (uint32_t) RCC_SW_PLL;
+	RCC->CFGR0 &= ~RCC_SW;
+	RCC->CFGR0 |= RCC_SW_PLL;
 
 	/// Wait till PLL is used as system clock source 
 	while ((RCC->CFGR0 & RCC_SWS) != 0x08);
@@ -423,19 +407,19 @@ static void SetSysClockTo72_HSI() {
 	FLASH->ACTLR |= FLASH_ACTLR_PRFTBE;
 
 	/// Flash 1 wait state 
-	FLASH->ACTLR &= (uint32_t) ~FLASH_ACTLR_LATENCY;
-	FLASH->ACTLR |= (uint32_t) FLASH_ACTLR_LATENCY_1;
+	FLASH->ACTLR &= ~FLASH_ACTLR_LATENCY;
+	FLASH->ACTLR |= FLASH_ACTLR_LATENCY_1;
 
 	/// HCLK = SYSCLK 
-	RCC->CFGR0 |= (uint32_t) RCC_HPRE_DIV1;
+	RCC->CFGR0 |= RCC_HPRE_DIV1;
 	/// PCLK2 = HCLK 
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE2_DIV1;
+	RCC->CFGR0 |= RCC_PPRE2_DIV1;
 	/// PCLK1 = HCLK 
-	RCC->CFGR0 |= (uint32_t) RCC_PPRE1_DIV2;
+	RCC->CFGR0 |= RCC_PPRE1_DIV2;
 
 	/// PLL configuration: PLLCLK = HSI * 9 = 72 MHz 
-	RCC->CFGR0 &= (uint32_t) ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
-	RCC->CFGR0 |= (uint32_t) (RCC_PLLSRC_HSI_Div2 | RCC_PLLMULL9);
+	RCC->CFGR0 &= ~(RCC_PLLSRC | RCC_PLLXTPRE | RCC_PLLMULL);
+	RCC->CFGR0 |= RCC_PLLSRC_HSI_Div2 | RCC_PLLMULL9;
 
 	/// Enable PLL 
 	RCC->CTLR |= RCC_PLLON;
@@ -444,8 +428,8 @@ static void SetSysClockTo72_HSI() {
 	while ((RCC->CTLR & RCC_PLLRDY) == 0);
 
 	/// Select PLL as system clock source 
-	RCC->CFGR0 &= (uint32_t) ~(RCC_SW);
-	RCC->CFGR0 |= (uint32_t) RCC_SW_PLL;
+	RCC->CFGR0 &= ~RCC_SW;
+	RCC->CFGR0 |= RCC_SW_PLL;
 
 	/// Wait till PLL is used as system clock source 
 	while ((RCC->CFGR0 & RCC_SWS) != 0x08);
