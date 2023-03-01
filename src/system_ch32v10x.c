@@ -68,8 +68,7 @@ void SystemInit() {
 }
 
 /// Update SystemCoreClock variable according to Clock Register Values.
-void SystemCoreClockUpdate()
-{
+void SystemCoreClockUpdate() {
 	uint32_t tmp, pllmull = 0, pllsource = 0;
 
 	tmp = RCC->CFGR0 & RCC_SWS;
