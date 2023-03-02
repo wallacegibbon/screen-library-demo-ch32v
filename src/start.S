@@ -101,7 +101,7 @@ default_interrupt_handler:
 	mret
 	*/
 
-	.section .text.handle_reset,"ax",@progbits
+	.section .text.handle_reset, "ax", @progbits
 	.weak handle_reset
 	.align 1
 handle_reset:
@@ -141,7 +141,7 @@ handle_reset:
 	csrw mtvec, t0
 
 	/*
-	la a0,__libc_fini_array
+	la a0, __libc_fini_array
 	call atexit
 	call __libc_init_array
 	*/
