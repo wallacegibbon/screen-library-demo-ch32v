@@ -3,9 +3,6 @@ OPENOCD_PATH = $(HOME)/MRS_Toolchain_Linux_x64_V1.60/OpenOCD
 OPENOCD = "$(OPENOCD_PATH)/bin/openocd"
 OPENOCD_ARGS = -f "$(OPENOCD_PATH)/bin/wch-riscv.cfg"
 
-TARGET = target
-BUILD_DIR = build
-
 LIB_PERIPHERAL_DIR = $(HOME)/CH32_standard_peripheral_library/ch32v10x
 ARCH = -march=rv32imac -mabi=ilp32
 #ARCH = -march=rv32ec -mabi=ilp32e
@@ -25,7 +22,7 @@ CROSS_C_ASM_INCLUDES = \
 
 OPENOCD_FLASH_COMMANDS = verify wlink_reset_resume resume exit
 
-include ./miscellaneous-makefiles/cross-gcc-mcu.mk
-
 CROSS_C_ASM_FLAGS += -DNDEBUG
+
+include ./miscellaneous-makefiles/cross-gcc-mcu.mk
 
