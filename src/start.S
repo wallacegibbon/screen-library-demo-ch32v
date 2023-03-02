@@ -105,12 +105,12 @@ default_interrupt_handler:
 	.weak handle_reset
 	.align 1
 handle_reset:
-	.option push 
-	.option norelax 
+	.option push
+	.option norelax
 	la gp, __global_pointer$
-	.option pop 
+	.option pop
 1:
-	la sp, _eusrstack 
+	la sp, _eusrstack
 2:
 	/* Load data section from flash to RAM */
 	la a0, _data_lma
