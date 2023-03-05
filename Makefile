@@ -14,11 +14,14 @@ CROSS_C_SOURCE_FILES += $(wildcard ./src/*.c)
 
 CROSS_ASM_SOURCE_FILES = $(wildcard ./src/*.S)
 
-CROSS_LINKER_SCRIPT = ./src/ch32v103rbt6.ld
+CROSS_LINKER_SCRIPT = ./src/ch32v103r8t6.ld
 
 CROSS_C_ASM_INCLUDES = \
 -I$(LIB_PERIPHERAL_DIR)/inc \
 -I./src/screen-library-mcu/ch32v10x -I./src/screen-library-mcu -I./src \
+
+OPENOCD_FLASH_COMMANDS = \
+-c "program $<" -c wlink_reset_resume -c exit
 
 include ./miscellaneous-makefiles/cross-gcc-mcu.mk
 
