@@ -2,7 +2,7 @@
 
 The StdPeriph library of CH32V103 are from: <https://github.com/openwch/ch32v103>.
 
-## Tools
+## Notes
 
 Currently, This [customized OpenOCD](https://github.com/karlp/openocd-hacks) is being used.
 
