@@ -5,7 +5,7 @@
 #include "painter.h"
 #include "common.h"
 #include "color.h"
-#include "debug.h"
+#include "ch32v_debug.h"
 #include <stdio.h>
 
 void fancy_display_1(struct Painter *painter) {
