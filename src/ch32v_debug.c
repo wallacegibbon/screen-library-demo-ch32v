@@ -1,44 +1,6 @@
 #include <ch32v_debug.h>
 
-static uint16_t p_ms = 0;
-static uint8_t p_us = 0;
-
-void Delay_Init(void) {
-	p_us = SystemCoreClock / 8000000;
-	p_ms = (uint16_t) p_us * 1000;
-}
-
-void Delay_Us(uint32_t n) {
-	uint32_t i;
-
-	SysTick->CTLR = 0;
-	i = (uint32_t) n * p_us;
-
-	SysTick->CNTL0 = 0;
-	SysTick->CNTL1 = 0;
-	SysTick->CNTL2 = 0;
-	SysTick->CNTL3 = 0;
-	SysTick->CTLR = 1;
-
-	while ((*(__IO uint32_t *) 0xE000F004) <= i);
-}
-
-void Delay_Ms(uint32_t n) {
-	uint32_t i;
-
-	SysTick->CTLR = 0;
-	i = (uint32_t) n * p_ms;
-
-	SysTick->CNTL0 = 0;
-	SysTick->CNTL1 = 0;
-	SysTick->CNTL2 = 0;
-	SysTick->CNTL3 = 0;
-	SysTick->CTLR = 1;
-
-	while ((*(__IO uint32_t *) 0xE000F004) <= i);
-}
-
-void USART_Printf_Init(uint32_t baudrate) {
+void USART_printf_initialize(uint32_t baudrate) {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
 

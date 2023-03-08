@@ -6,6 +6,7 @@
 #include "common.h"
 #include "color.h"
 #include "ch32v_debug.h"
+#include "core_systick.h"
 #include <stdio.h>
 
 void fancy_display_1(struct Painter *painter) {
@@ -75,8 +76,10 @@ void main() {
 	struct Point p2;
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-	Delay_Init();
-	USART_Printf_Init(9600);
+
+	initialize_systick_interrupt();
+	USART_printf_initialize(9600);
+
 	printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
 	initialize_screen_1(&screen1, &adaptor1);
@@ -111,6 +114,7 @@ void main() {
 
 	while (1) {
 		fancy_display_1(&painter);
+		//printf("clock: %d, %d\r\n", millis(), micros());
 	}
 }
 
