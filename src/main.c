@@ -41,7 +41,7 @@ void initialize_screen_1(
 
 	SSD1306_Screen_initialize(
 		screen1,
-		(struct SSD1306_ScreenAdaptorInterface *) adaptor1
+		(struct SSD1306_ScreenAdaptorInterface **) adaptor1
 	);
 
 	printf("SSD1306 screen on...\r\n");
@@ -61,7 +61,7 @@ void initialize_screen_2(
 
 	ST7735_Screen_initialize(
 		screen2,
-		(struct ST7735_ScreenAdaptorInterface *) adaptor2
+		(struct ST7735_ScreenAdaptorInterface **) adaptor2
 	);
 }
 */
@@ -87,8 +87,8 @@ void main() {
 
 	SSD1306_Screen_set_up_down_invert(&screen1);
 
-	painter.screen = (struct DrawingBoardInterface *) &screen1;
-	//painter.screen = (struct DrawingBoardInterface *) &screen2;
+	painter.drawing_board = (struct DrawingBoardInterface **) &screen1;
+	//painter.drawing_board = (struct DrawingBoardInterface **) &screen2;
 
 	printf("clearing screen...\r\n");
 	Painter_clear(&painter, BLACK_16bit);
@@ -113,8 +113,8 @@ void main() {
 	Painter_flush(&painter);
 
 	while (1) {
-		fancy_display_1(&painter);
 		//printf("clock: %d, %d\r\n", millis(), micros());
+		fancy_display_1(&painter);
 	}
 }
 
