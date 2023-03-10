@@ -2,11 +2,11 @@
 #include "ssd1306.h"
 //#include "st7735_ch32v10x_spi.h"
 //#include "st7735.h"
-#include "painter.h"
-#include "common.h"
-#include "color.h"
-#include "ch32v_debug.h"
+#include "screen_painter.h"
+#include "screen_common.h"
+#include "screen_color.h"
 #include "core_systick.h"
+#include "ch32v_debug.h"
 #include <stdio.h>
 
 void fancy_display_1(struct Painter *painter) {
