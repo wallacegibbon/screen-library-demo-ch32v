@@ -93,6 +93,10 @@ void main() {
 	printf("clearing screen...\r\n");
 	Painter_clear(&painter, BLACK_16bit);
 
+	/// The default method do not flush, but some overriding `clear` method
+	// do flush automatically.
+	//Painter_flush(&painter);
+
 	printf("drawing a rectangle...\r\n");
 	Point_initialize(&p1, 64 - 50, 32 - 20);
 	Point_initialize(&p2, 64 + 50, 32 + 20);
@@ -109,7 +113,6 @@ void main() {
 	Painter_draw_line(&painter, p1, p2, WHITE_1bit);
 	*/
 
-	printf("flushing the screen...\r\n");
 	Painter_flush(&painter);
 
 	while (1) {
