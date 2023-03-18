@@ -1,6 +1,6 @@
 ## Introduction
 
-The StdPeriph library of CH32V103 are from: <https://github.com/openwch/ch32v103>.
+This is a demo of using my [screen library](https://github.com/wallacegibbon/screen-library-mcu) for micro-controllers.
 
 ## Notes
 
