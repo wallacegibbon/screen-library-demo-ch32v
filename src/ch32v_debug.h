@@ -1,7 +1,6 @@
-#ifndef __DEBUG_H
-#define __DEBUG_H
+#ifndef __CH32V_DEBUG_H
+#define __CH32V_DEBUG_H
 
-#include <ch32v10x.h>
 #include <stdio.h>
 
 #define DEBUG_UART1 1

@@ -1,12 +1,13 @@
-#include "sc_ssd1306_ch32v10x_i2c.h"
+#include "sc_ssd1306_ch32v_i2c.h"
 #include "sc_ssd1306.h"
-//#include "sc_st7735_ch32v10x_spi.h"
+//#include "sc_st7735_ch32v_spi.h"
 //#include "sc_st7735.h"
 #include "sc_painter.h"
 #include "sc_common.h"
 #include "sc_color.h"
 #include "core_systick.h"
 #include "ch32v_debug.h"
+#include "ch32v20x.h"
 #include <stdio.h>
 
 void fancy_display_1(struct Painter *painter) {
@@ -31,11 +32,11 @@ void fancy_display_1(struct Painter *painter) {
 
 void initialize_screen_1(
 	struct SSD1306_Screen *screen1,
-	struct SSD1306_ScreenAdaptorCH32V10xI2C *adaptor1
+	struct SSD1306_ScreenAdaptorCH32VI2C *adaptor1
 ) {
 	printf("initializing SSD1306...\r\n");
 
-	SSD1306_ScreenAdaptorCH32V10xI2C_initialize(
+	SSD1306_ScreenAdaptorCH32VI2C_initialize(
 		adaptor1, 0x3C
 	);
 
@@ -51,11 +52,11 @@ void initialize_screen_1(
 /*
 void initialize_screen_2(
 	struct ST7735_Screen *screen2,
-	struct ST7735_ScreenAdaptorCH32V10xSPI *adaptor2
+	struct ST7735_ScreenAdaptorCH32VSPI *adaptor2
 ) {
 	printf("initializing ST7735...\r\n");
 
-	ST7735_ScreenAdaptorCH32V10xSPI_initialize(
+	ST7735_ScreenAdaptorCH32VSPI_initialize(
 		adaptor2, ...
 	);
 
@@ -67,9 +68,9 @@ void initialize_screen_2(
 */
 
 void main() {
-	struct SSD1306_ScreenAdaptorCH32V10xI2C adaptor1;
+	struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
 	struct SSD1306_Screen screen1;
-	//struct ST7735_ScreenAdaptorCH32V10xSPI adaptor2;
+	//struct ST7735_ScreenAdaptorCH32VSPI adaptor2;
 	//struct ST7735_Screen screen2;
 	struct Painter painter;
 	struct Point p1;
