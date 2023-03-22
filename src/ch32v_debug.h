@@ -1,5 +1,5 @@
-#ifndef __CH32V_DEBUG_H
-#define __CH32V_DEBUG_H
+#ifndef __DEBUG_H
+#define __DEBUG_H
 
 #include <stdio.h>
 
@@ -13,5 +13,11 @@
 
 void USART_printf_initialize(uint32_t baudrate);
 
+#if(DEBUG)
+#define PRINT(format, ...) printf(format, ##__VA_ARGS__)
+#else
+#define PRINT(X...)
 #endif
 
+
+#endif
