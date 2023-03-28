@@ -7,7 +7,7 @@
 #include "sc_color.h"
 #include "core_systick.h"
 #include "ch32v_debug.h"
-#include "ch32v20x.h"
+#include "ch32v30x.h"
 #include <stdio.h>
 
 void fancy_display_1(struct Painter *painter) {

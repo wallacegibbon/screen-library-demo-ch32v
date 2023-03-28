@@ -13,11 +13,5 @@
 
 void USART_printf_initialize(uint32_t baudrate);
 
-#if(DEBUG)
-#define PRINT(format, ...) printf(format, ##__VA_ARGS__)
-#else
-#define PRINT(X...)
 #endif
 
-
-#endif

@@ -1,5 +1,5 @@
 #include <ch32v_debug.h>
-#include <ch32v20x.h>
+#include <ch32v30x.h>
 
 void USART_printf_initialize(uint32_t baudrate) {
 	GPIO_InitTypeDef GPIO_InitStructure;
