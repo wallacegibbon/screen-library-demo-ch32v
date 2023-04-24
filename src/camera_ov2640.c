@@ -1,5 +1,33 @@
 #include "ch32v30x.h"
+#include "core_systick.h"
 #include <stdint.h>
+
+/// RGB565 PIXEL 320*240
+#define RGB565_ROW_NUM 240
+#define RGB565_COL_NUM 480 // Col * 2
+#define OV2640_RGB565_HEIGHT 320
+#define OV2640_RGB565_WIDTH 240
+
+/// PEG PIXEL 1024 * 768
+#define OV2640_JPEG_HEIGHT 768
+#define OV2640_JPEG_WIDTH 1024
+
+#define OV2640_SCCB_ID 0X60
+#define OV2640_MID 0X7FA2
+#define OV2640_PID 0X2642
+
+#define IIC_SCL_IN  { GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 8 << 8; }
+#define IIC_SCL_OUT { GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 3 << 8; }
+#define IIC_SDA_IN  { GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 8 << 12; }
+#define IIC_SDA_OUT { GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 3 << 12; }
+
+#define IIC_SDA_SET { GPIOB->BSHR = GPIO_Pin_11; }
+#define IIC_SDA_CLR { GPIOB->BCR = GPIO_Pin_11; }
+#define IIC_SCL_SET { GPIOB->BSHR = GPIO_Pin_10; }
+#define IIC_SCL_CLR { GPIOB->BCR = GPIO_Pin_10; }
+
+/// SDA In
+#define SDA_IN_R (GPIOB->INDR & GPIO_Pin_11)
 
 /// Start Camera list of initialization configuration registers
 static const uint8_t ov2640_init_reg_tbl[][2] = {
@@ -482,5 +510,53 @@ int ov2640_initialize() {
 	dvp_gpio_initialize();
 
 	return 0;
+}
+
+void SCCB_GPIO_initialize() {
+	IIC_SCL_OUT;
+	IIC_SDA_OUT;
+	IIC_SCL_SET;
+	IIC_SDA_SET;
+}
+
+void SCCB_start() {
+	IIC_SDA_SET;
+	IIC_SCL_SET;
+	delay_us(50);
+	IIC_SDA_CLR;
+	delay_us(50);
+	IIC_SCL_CLR;
+}
+
+void SCCB_stop() {
+	IIC_SDA_CLR;
+	delay_us(50);
+	IIC_SCL_SET;
+	delay_us(50);
+	IIC_SDA_SET;
+	delay_us(50);
+}
+
+void SCCB_no_ack() {
+	delay_us(50);
+	IIC_SDA_SET;
+	IIC_SCL_SET;
+	delay_us(50);
+	IIC_SCL_CLR;
+	delay_us(50);
+	IIC_SDA_CLR;
+	delay_us(50);
+}
+
+void SCCB_write_byte(uint8_t data) {
+}
+
+uint8_t SCCB_read_byte() {
+}
+
+void SCCB_write_reg(uint8_t data) {
+}
+
+uint8_t SCCB_read_reg() {
 }
 
