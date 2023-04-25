@@ -16,21 +16,40 @@
 #define OV2640_MID 0X7FA2
 #define OV2640_PID 0X2642
 
-#define IIC_SCL_IN  { GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 8 << 8; }
-#define IIC_SCL_OUT { GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 3 << 8; }
-#define IIC_SDA_IN  { GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 8 << 12; }
-#define IIC_SDA_OUT { GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 3 << 12; }
+#define OV_RESET_SET (GPIOB->BSHR = GPIO_Pin_7)
+#define OV_RESET_CLR (GPIOB->BCR = GPIO_Pin_7)
+#define OV_PWDN_SET (GPIOC->BSHR = GPIO_Pin_7)
+#define OV_PWDN_CLR (GPIOC->BCR = GPIO_Pin_7)
 
-#define IIC_SDA_SET { GPIOB->BSHR = GPIO_Pin_11; }
-#define IIC_SDA_CLR { GPIOB->BCR = GPIO_Pin_11; }
-#define IIC_SCL_SET { GPIOB->BSHR = GPIO_Pin_10; }
-#define IIC_SCL_CLR { GPIOB->BCR = GPIO_Pin_10; }
+#define IIC_SCL_IN do { \
+	GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 8 << 8; \
+	} while (0)
+
+#define IIC_SCL_OUT do { \
+	GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 3 << 8; \
+	} while (0)
+
+#define IIC_SDA_IN do { \
+	GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 8 << 12; \
+	} while (0)
+
+#define IIC_SDA_OUT do { \
+	GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 3 << 12; \
+	} while (0)
+
+#define IIC_SDA_SET (GPIOB->BSHR = GPIO_Pin_11)
+#define IIC_SDA_CLR (GPIOB->BCR = GPIO_Pin_11)
+#define IIC_SCL_SET (GPIOB->BSHR = GPIO_Pin_10)
+#define IIC_SCL_CLR (GPIOB->BCR = GPIO_Pin_10)
 
 /// SDA In
 #define SDA_IN_R (GPIOB->INDR & GPIO_Pin_11)
 
+int SCCB_write_reg(uint8_t reg_addr, uint8_t reg_data);
+uint8_t SCCB_read_reg(uint8_t reg_addr);
+
 /// Start Camera list of initialization configuration registers
-static const uint8_t ov2640_init_reg_tbl[][2] = {
+static const uint8_t ov2640_init_reg_tbl[] = {
 	0xFF, 0x00,
 	0x2C, 0xFF,
 	0x2E, 0xDF,
@@ -438,7 +457,7 @@ static const uint8_t ov2640_init_reg_tbl[][2] = {
 };
 
 /// YUV422
-static const uint8_t ov2640_yuv422_reg_tbl[][2] = {
+static const uint8_t ov2640_yuv422_reg_tbl[] = {
 	0xFF, 0x00,
 	0xDA, 0x10,
 	0xD7, 0x03,
@@ -450,7 +469,7 @@ static const uint8_t ov2640_yuv422_reg_tbl[][2] = {
 };
 
 /// JPEG
-static const uint8_t ov2640_jpeg_reg_tbl[][2] = {
+static const uint8_t ov2640_jpeg_reg_tbl[] = {
 	0xFF, 0x01,
 	0xE0, 0x14,
 	0xE1, 0x77,
@@ -461,7 +480,7 @@ static const uint8_t ov2640_jpeg_reg_tbl[][2] = {
 };
 
 /// RGB565
-static const uint8_t ov2640_rgb565_reg_tbl[][2] = {
+static const uint8_t ov2640_rgb565_reg_tbl[] = {
 	0xFF, 0x00,
 	0xDA, 0x08,
 	0xD7, 0x03,
@@ -478,7 +497,7 @@ static const uint8_t ov2640_rgb565_reg_tbl[][2] = {
 	0xE0, 0x00,
 };
 
-static void dvp_gpio_initialize() {
+static void DVP_gpio_initialize() {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD, ENABLE);
@@ -506,17 +525,99 @@ static void dvp_gpio_initialize() {
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
-int ov2640_initialize() {
-	dvp_gpio_initialize();
-
-	return 0;
-}
-
-void SCCB_GPIO_initialize() {
+void SCCB_gpio_initialize() {
 	IIC_SCL_OUT;
 	IIC_SDA_OUT;
 	IIC_SCL_SET;
 	IIC_SDA_SET;
+}
+
+void ov2640_send_command_table(const uint8_t *cmd_tbl, int size) {
+	int i;
+	for (i = 0; i < size / 2; i++)
+		SCCB_write_reg(cmd_tbl[i * 2], cmd_tbl[i * 2 + 1]);
+}
+
+int ov2640_initialize() {
+	int reg;
+
+	DVP_gpio_initialize();
+	SCCB_gpio_initialize();
+
+	OV_PWDN_CLR;
+	delay_ms(10);
+	OV_RESET_CLR;
+	delay_ms(10);
+	OV_RESET_SET;
+
+	SCCB_write_reg(0xFF, 0x01);
+	SCCB_write_reg(0x12, 0x80);
+	delay_ms(50);
+
+	reg = SCCB_read_reg(0x1C);
+	reg <<= 8;
+	reg |= SCCB_read_reg(0x1D);
+
+	if (reg != OV2640_MID)
+		return 1;
+
+	reg = SCCB_read_reg(0x0A);
+	reg <<= 8;
+	reg |= SCCB_read_reg(0x0B);
+
+	if (reg != OV2640_PID)
+		return 2;
+
+	ov2640_send_command_table(
+		ov2640_init_reg_tbl, sizeof(ov2640_init_reg_tbl)
+	);
+
+	return 0;
+}
+
+void ov2640_JPEG_mode() {
+	ov2640_send_command_table(
+		ov2640_yuv422_reg_tbl, sizeof(ov2640_yuv422_reg_tbl)
+	);
+	ov2640_send_command_table(
+		ov2640_jpeg_reg_tbl, sizeof(ov2640_jpeg_reg_tbl)
+	);
+}
+
+void ov2640_RGB565_mode() {
+	ov2640_send_command_table(
+		ov2640_rgb565_reg_tbl, sizeof(ov2640_rgb565_reg_tbl)
+	);
+}
+
+int ov2640_outsize_set(uint16_t image_width, uint16_t image_height) {
+	uint16_t outsize_width, outsize_height;
+	uint8_t tmp;
+
+	if ((image_width % 4) || (image_height % 4))
+		return 1;
+
+	outsize_width = image_width / 4;
+	outsize_height = image_height / 4;
+
+	SCCB_write_reg(0xFF, 0);
+	SCCB_write_reg(0xE0, 4);
+	SCCB_write_reg(0x5A, outsize_width & 0xFF);
+	SCCB_write_reg(0x5B, outsize_height & 0xFF);
+	tmp = (outsize_width >> 8) & 0x03;
+	tmp |= (outsize_height >> 6) & 0x04;
+	SCCB_write_reg(0x5C, tmp);
+	SCCB_write_reg(0xE0, 0);
+
+	return 0;
+}
+
+int ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
+	SCCB_write_reg(0xFF, 0);
+	SCCB_write_reg(0xD3, pclk_div);
+
+	SCCB_write_reg(0xFF, 1);
+	SCCB_write_reg(0x11, xclk_div);
 }
 
 void SCCB_start() {
@@ -548,15 +649,86 @@ void SCCB_no_ack() {
 	delay_us(50);
 }
 
-void SCCB_write_byte(uint8_t data) {
+int SCCB_write_byte(uint8_t data) {
+	int i, t;
+	for (i = 0; i < 8; i++) {
+		if (data & 0x80) IIC_SDA_SET;
+		else IIC_SDA_CLR;
+
+		data <<= 1;
+		delay_us(50);
+		IIC_SCL_SET;
+		delay_us(50);
+		IIC_SCL_CLR;
+	}
+
+	IIC_SDA_IN;
+	delay_us(50);
+	IIC_SCL_SET;
+	delay_us(50);
+
+	t = !!SDA_IN_R;
+
+	IIC_SCL_CLR;
+	IIC_SDA_OUT;
+
+	return t;
 }
 
 uint8_t SCCB_read_byte() {
+	int i, t = 0;
+
+	IIC_SDA_IN;
+
+	for (i = 0; i < 8; i++) {
+		delay_us(50);
+		IIC_SCL_SET;
+
+		t <<= 1;
+		if (SDA_IN_R) t |= 1;
+
+		delay_us(50);
+		IIC_SCL_CLR;
+	}
+
+	IIC_SDA_OUT;
+	return t;
 }
 
-void SCCB_write_reg(uint8_t data) {
+int SCCB_write_reg(uint8_t reg_addr, uint8_t reg_data) {
+	int r = 0;
+	SCCB_start();
+
+	if (SCCB_write_byte(OV2640_SCCB_ID)) r = 1;
+	delay_us(100);
+
+	if (SCCB_write_byte(reg_addr)) r = 1;
+	delay_us(100);
+
+	if (SCCB_write_byte(reg_data)) r = 1;
+	delay_us(100);
+
+	SCCB_stop();
+	return r;
 }
 
-uint8_t SCCB_read_reg() {
+uint8_t SCCB_read_reg(uint8_t reg_addr) {
+	int r = 0;
+	SCCB_start();
+	SCCB_write_byte(OV2640_SCCB_ID);
+	delay_us(100);
+	SCCB_write_byte(reg_addr);
+	delay_us(100);
+	SCCB_stop();
+	delay_us(100);
+
+	SCCB_start();
+	SCCB_write_byte(OV2640_SCCB_ID | 0x01);
+	delay_us(100);
+	r = SCCB_read_byte();
+	SCCB_no_ack();
+	SCCB_stop();
+
+	return r;
 }
 
