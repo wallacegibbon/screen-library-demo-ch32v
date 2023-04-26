@@ -2,7 +2,8 @@ CROSS_COMPILER_PREFIX = $(HOME)/MRS_Toolchain_Linux_x64_V1.60/RISC-V Embedded GC
 OPENOCD = /usr/local/bin/openocd
 OPENOCD_ARGS = -f interface/wlink.cfg -f target/wch-riscv.cfg
 
-ARCH = -march=rv32imac -mabi=ilp32
+ARCH = -march=rv32imafc -mabi=ilp32f
+#ARCH = -march=rv32imac -mabi=ilp32
 #ARCH = -march=rv32ec -mabi=ilp32e
 
 CH32_STD_LIB_DIR = $(HOME)/playground/ch32-standard-library/ch32v30x
