@@ -542,7 +542,7 @@ void SCCB_gpio_initialize() {
 }
 
 static void DVP_initialize() {
-	NVIC_InitTypeDef NVIC_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure = {0};
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DVP, ENABLE);
 
@@ -564,7 +564,7 @@ static void DVP_initialize() {
 	DVP->CR1 &= ~RB_DVP_FCRC;
 	DVP->CR1 |= DVP_RATE_100P; // 100%
 
-	/// Interupt Enable
+	/// These 5 interrupt shares DVP_IRQHandler
 	DVP->IER |= RB_DVP_IE_STP_FRM;
 	DVP->IER |= RB_DVP_IE_FIFO_OV;
 	DVP->IER |= RB_DVP_IE_FRM_DONE;
@@ -577,8 +577,8 @@ static void DVP_initialize() {
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
-	DVP->CR1 |= RB_DVP_DMA_EN; // enable DMA
-	DVP->CR0 |= RB_DVP_ENABLE; // enable DVP
+	DVP->CR1 |= RB_DVP_DMA_EN;
+	DVP->CR0 |= RB_DVP_ENABLE;
 }
 
 void ov2640_send_command_table(const uint8_t *cmd_tbl, int size) {
@@ -625,8 +625,62 @@ int ov2640_initialize() {
 	return 0;
 }
 
+void DVP_RowDoneHandler() {
+	DVP->IFR &= ~RB_DVP_IF_ROW_DONE;
+#if (DVP_Work_Mode == RGB565_MODE)
+	DMA_Cmd(DMA2_Channel5, DISABLE);
+	DMA_SetCurrDataCounter(DMA2_Channel5, RGB565_COL_NUM);
+
+	if (addr_cnt % 2)
+		DMA2_Channel5->PADDR = RGB565_DVPDMAaddr0;
+	else
+		DMA2_Channel5->PADDR = RGB565_DVPDMAaddr1;
+
+	DMA_Cmd(DMA2_Channel5, ENABLE);
+	addr_cnt++;
+	href_cnt++;
+#endif
+}
+
+void DVP_FrmDoneHandler() {
+	DVP->IFR &= ~RB_DVP_IF_FRM_DONE;
+#if (DVP_Work_Mode == RGB565_MODE)
+	addr_cnt = 0;
+        href_cnt = 0;
+#endif
+}
+
+void DVP_StrFrmHandler() {
+	DVP->IFR &= ~RB_DVP_IF_STR_FRM;
+	frame_cnt++;
+}
+
+void DVP_StpFrmHandler() {
+	DVP->IFR &= ~RB_DVP_IF_STP_FRM;
+}
+
+void DVP_FifoOvHandler() {
+	DVP->IFR &= ~RB_DVP_IF_FIFO_OV;
+	/// for debug
+	while (1);
+}
+
 __attribute__((interrupt("WCH-Interrupt-fast")))
 void DVP_IRQHandler() {
+	if (DVP->IFR & RB_DVP_IF_ROW_DONE)
+		DVP_RowDoneHandler();
+
+	if (DVP->IFR & RB_DVP_IF_FRM_DONE)
+		DVP_FrmDoneHandler();
+
+	if (DVP->IFR & RB_DVP_IF_STR_FRM)
+		DVP_StrFrmHandler();
+
+	if (DVP->IFR & RB_DVP_IF_STP_FRM)
+		DVP_StpFrmHandler();
+
+	if (DVP->IFR & RB_DVP_IF_FIFO_OV)
+		DVP_FifoOvHandler();
 }
 
 void ov2640_JPEG_mode() {
