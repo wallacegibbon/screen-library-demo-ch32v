@@ -21,21 +21,17 @@
 #define OV_PWDN_SET (GPIOC->BSHR = GPIO_Pin_7)
 #define OV_PWDN_CLR (GPIOC->BCR = GPIO_Pin_7)
 
-#define IIC_SCL_IN do { \
-	GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 8 << 8; \
-	} while (0)
+#define IIC_SCL_IN \
+	do { GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 8 << 8; } while (0)
 
-#define IIC_SCL_OUT do { \
-	GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 3 << 8; \
-	} while (0)
+#define IIC_SCL_OUT \
+	do { GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 3 << 8; } while (0)
 
-#define IIC_SDA_IN do { \
-	GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 8 << 12; \
-	} while (0)
+#define IIC_SDA_IN \
+	do { GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 8 << 12; } while (0)
 
-#define IIC_SDA_OUT do { \
-	GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 3 << 12; \
-	} while (0)
+#define IIC_SDA_OUT \
+	do { GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 3 << 12; } while (0)
 
 #define IIC_SDA_SET (GPIOB->BSHR = GPIO_Pin_11)
 #define IIC_SDA_CLR (GPIOB->BCR = GPIO_Pin_11)
