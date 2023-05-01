@@ -5,6 +5,7 @@
 //#include "sc_st7735_ch32v_spi.h"
 //#include "sc_st7735.h"
 #include "sc_painter.h"
+#include "camera_ov2640.h"
 #include "sc_common.h"
 #include "sc_color.h"
 #include "core_systick.h"
@@ -93,7 +94,7 @@ void initialize_screen_3(
 	GPIO_SetBits(GPIOB, GPIO_Pin_14);
 }
 
-void main() {
+void graphic_play() {
 	//struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
 	//struct SSD1306_Screen screen1;
 	//struct ST7735_ScreenAdaptorCH32VSPI adaptor2;
@@ -104,13 +105,6 @@ void main() {
 	struct Point p1;
 	struct Point p2;
 	struct Point size;
-
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-
-	initialize_systick_interrupt();
-
-	//USART_printf_initialize(9600);
-	//printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
 	//initialize_screen_1(&screen1, &adaptor1);
 	//initialize_screen_2(&screen2, &adaptor2);
@@ -148,5 +142,60 @@ void main() {
 	while (1) {
 		fancy_display(&painter);
 	}
+}
+
+void DMA_SRAMLCD_initialize(uint32_t periph_address) {
+	DMA_InitTypeDef DMA_InitStructure;
+
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
+
+	DMA_DeInit(DMA2_Channel5);
+
+	DMA_InitStructure.DMA_PeripheralBaseAddr = periph_address;
+	DMA_InitStructure.DMA_MemoryBaseAddr = ST7789_LCD_DATA;
+	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+	DMA_InitStructure.DMA_BufferSize = 0;
+	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Enable;
+	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
+	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+	DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
+	DMA_InitStructure.DMA_M2M = DMA_M2M_Enable;
+	DMA_Init(DMA2_Channel5, &DMA_InitStructure);
+}
+
+void DMA_SRAMLCD_enable(void) {
+	DMA_Cmd(DMA2_Channel5, DISABLE);
+	DMA_SetCurrDataCounter(DMA2_Channel5, 240);
+	DMA_Cmd(DMA2_Channel5, ENABLE);
+}
+
+void main() {
+	struct ST7789_ScreenAdaptorCH32VFSMC adaptor3;
+	struct ST7789_Screen screen3;
+
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	initialize_systick_interrupt();
+
+	//USART_printf_initialize(115200);
+	//printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
+
+	//graphic_play();
+
+	initialize_screen_3(&screen3, &adaptor3);
+
+	while (ov2640_initialize())
+		delay_ms(500);
+
+	delay_ms(100);
+	//ov2640_JPEG_mode_initialize();
+	ov2640_RGB565_mode_initialize();
+	delay_ms(100);
+
+	DMA_SRAMLCD_initialize(RGB565_DVPDMAaddr0);
+	DVP_initialize();
+
+	while (1);
 }
 

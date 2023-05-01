@@ -1,5 +1,6 @@
 #include "ch32v30x.h"
 #include "core_systick.h"
+#include "camera_ov2640.h"
 #include <stdint.h>
 
 /// RGB565 PIXEL 320*240
@@ -44,15 +45,9 @@
 //#define DVP_Work_Mode 0
 #define DVP_Work_Mode RGB565_MODE
 
-uintptr_t JPEG_DVPDMAaddr0 = 0x20005000;
-uintptr_t JPEG_DVPDMAaddr1 = 0x20005000 + OV2640_JPEG_WIDTH;
-
-uintptr_t RGB565_DVPDMAaddr0 = 0x2000A000;
-uintptr_t RGB565_DVPDMAaddr1 = 0x2000A000 + RGB565_COL_NUM * 2;
-
-volatile uint32_t frame_cnt = 0;
-volatile uint32_t addr_cnt = 0;
-volatile uint32_t href_cnt = 0;
+static volatile uint32_t frame_cnt = 0;
+static volatile uint32_t addr_cnt = 0;
+static volatile uint32_t href_cnt = 0;
 
 int SCCB_write_reg(uint8_t reg_addr, uint8_t reg_data);
 uint8_t SCCB_read_reg(uint8_t reg_addr);
@@ -541,8 +536,10 @@ void SCCB_gpio_initialize() {
 	IIC_SDA_SET;
 }
 
-static void DVP_initialize() {
+void DVP_initialize() {
 	NVIC_InitTypeDef NVIC_InitStructure = {0};
+
+	DVP_gpio_initialize();
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DVP, ENABLE);
 
@@ -572,7 +569,7 @@ static void DVP_initialize() {
 	DVP->IER |= RB_DVP_IE_STR_FRM;
 
 	NVIC_InitStructure.NVIC_IRQChannel = DVP_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
@@ -590,8 +587,6 @@ void ov2640_send_command_table(const uint8_t *cmd_tbl, int size) {
 int ov2640_initialize() {
 	int reg;
 
-	DVP_gpio_initialize();
-	DVP_initialize();
 	SCCB_gpio_initialize();
 
 	OV_PWDN_CLR;
@@ -667,20 +662,11 @@ void DVP_FifoOvHandler() {
 
 __attribute__((interrupt("WCH-Interrupt-fast")))
 void DVP_IRQHandler() {
-	if (DVP->IFR & RB_DVP_IF_ROW_DONE)
-		DVP_RowDoneHandler();
-
-	if (DVP->IFR & RB_DVP_IF_FRM_DONE)
-		DVP_FrmDoneHandler();
-
-	if (DVP->IFR & RB_DVP_IF_STR_FRM)
-		DVP_StrFrmHandler();
-
-	if (DVP->IFR & RB_DVP_IF_STP_FRM)
-		DVP_StpFrmHandler();
-
-	if (DVP->IFR & RB_DVP_IF_FIFO_OV)
-		DVP_FifoOvHandler();
+	if (DVP->IFR & RB_DVP_IF_ROW_DONE) DVP_RowDoneHandler();
+	if (DVP->IFR & RB_DVP_IF_FRM_DONE) DVP_FrmDoneHandler();
+	if (DVP->IFR & RB_DVP_IF_STR_FRM) DVP_StrFrmHandler();
+	if (DVP->IFR & RB_DVP_IF_STP_FRM) DVP_StpFrmHandler();
+	if (DVP->IFR & RB_DVP_IF_FIFO_OV) DVP_FifoOvHandler();
 }
 
 void ov2640_JPEG_mode() {
@@ -726,6 +712,18 @@ int ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
 
 	SCCB_write_reg(0xFF, 1);
 	SCCB_write_reg(0x11, xclk_div);
+}
+
+void ov2640_JPEG_mode_initialize() {
+	ov2640_JPEG_mode();
+	ov2640_outsize_set(OV2640_JPEG_WIDTH, OV2640_JPEG_HEIGHT);
+	ov2640_speed_set(30, 1);
+}
+
+void ov2640_RGB565_mode_initialize() {
+	ov2640_RGB565_mode();
+	ov2640_outsize_set(OV2640_RGB565_WIDTH, OV2640_RGB565_HEIGHT);
+	ov2640_speed_set(15, 3);
 }
 
 void SCCB_start() {
