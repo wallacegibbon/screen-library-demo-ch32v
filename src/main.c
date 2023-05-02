@@ -94,14 +94,13 @@ void initialize_screen_3(
 	GPIO_SetBits(GPIOB, GPIO_Pin_14);
 }
 
-void graphic_play() {
+void graphic_play(struct Painter *painter) {
 	//struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
 	//struct SSD1306_Screen screen1;
 	//struct ST7735_ScreenAdaptorCH32VSPI adaptor2;
 	//struct ST7735_Screen screen2;
 	struct ST7789_ScreenAdaptorCH32VFSMC adaptor3;
 	struct ST7789_Screen screen3;
-	struct Painter painter;
 	struct Point p1;
 	struct Point p2;
 	struct Point size;
@@ -112,43 +111,42 @@ void graphic_play() {
 
 	//SSD1306_Screen_set_up_down_invert(&screen1);
 
-	//painter.drawing_board = (struct DrawingBoardInterface **) &screen1;
-	//painter.drawing_board = (struct DrawingBoardInterface **) &screen2;
-	painter.drawing_board = (struct DrawingBoardInterface **) &screen3;
+	//painter->drawing_board = (struct DrawingBoardInterface **) &screen1;
+	//painter->drawing_board = (struct DrawingBoardInterface **) &screen2;
+	painter->drawing_board = (struct DrawingBoardInterface **) &screen3;
 
-	Painter_clear(&painter, BLACK_16bit);
+	Painter_clear(painter, BLACK_16bit);
 
 	/// The default method do not flush, but some overriding `clear` method
 	// do flush automatically.
-	//Painter_flush(&painter);
+	//Painter_flush(painter);
 
-	Painter_size(&painter, &size);
+	Painter_size(painter, &size);
 
 	Point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
 	Point_initialize(&p2, size.x / 2 + 50, size.y / 2 + 20);
-	Painter_draw_rectangle(&painter, p1, p2, BLUE_16bit);
+	Painter_draw_rectangle(painter, p1, p2, BLUE_16bit);
 
 	Point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
-	Painter_draw_circle(&painter, p1, 5, RED_16bit);
+	Painter_draw_circle(painter, p1, 5, RED_16bit);
 
 	/*
 	Point_initialize(&p1, 0, 0);
 	Point_initialize(&p2, 20, 50);
-	Painter_draw_line(&painter, p1, p2, WHITE_16bit);
+	Painter_draw_line(painter, p1, p2, WHITE_16bit);
 	*/
 
-	Painter_flush(&painter);
+	Painter_flush(painter);
 
 	while (1) {
-		fancy_display(&painter);
+		fancy_display(painter);
 	}
 }
 
-void DMA_SRAMLCD_initialize(uint32_t periph_address) {
+void DMA_SRAMLCD_initialize(uintptr_t periph_address) {
 	DMA_InitTypeDef DMA_InitStructure;
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
-
 	DMA_DeInit(DMA2_Channel5);
 
 	DMA_InitStructure.DMA_PeripheralBaseAddr = periph_address;
@@ -162,18 +160,16 @@ void DMA_SRAMLCD_initialize(uint32_t periph_address) {
 	DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
 	DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
 	DMA_InitStructure.DMA_M2M = DMA_M2M_Enable;
-	DMA_Init(DMA2_Channel5, &DMA_InitStructure);
-}
 
-void DMA_SRAMLCD_enable(void) {
-	DMA_Cmd(DMA2_Channel5, DISABLE);
-	DMA_SetCurrDataCounter(DMA2_Channel5, 240);
-	DMA_Cmd(DMA2_Channel5, ENABLE);
+	DMA_Init(DMA2_Channel5, &DMA_InitStructure);
 }
 
 void main() {
 	struct ST7789_ScreenAdaptorCH32VFSMC adaptor3;
 	struct ST7789_Screen screen3;
+	struct Painter painter;
+	struct Point p1;
+	struct Point p2;
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	initialize_systick_interrupt();
@@ -181,9 +177,17 @@ void main() {
 	//USART_printf_initialize(115200);
 	//printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
-	//graphic_play();
+	//graphic_play(&painter);
 
 	initialize_screen_3(&screen3, &adaptor3);
+	painter.drawing_board = (struct DrawingBoardInterface **) &screen3;
+
+	Painter_clear(&painter, BLACK_16bit);
+	//Painter_clear(&painter, RED_16bit);
+
+	Point_initialize(&p1, 0, 40);
+	Point_initialize(&p2, 239, 199);
+	ST7789_Screen_set_address(&screen3, p1, p2);
 
 	while (ov2640_initialize())
 		delay_ms(500);
@@ -193,7 +197,7 @@ void main() {
 	ov2640_RGB565_mode_initialize();
 	delay_ms(100);
 
-	DMA_SRAMLCD_initialize(RGB565_DVPDMAaddr0);
+	DMA_SRAMLCD_initialize((uintptr_t) RGB565_DVPDMAaddr0);
 	DVP_initialize();
 
 	while (1);
