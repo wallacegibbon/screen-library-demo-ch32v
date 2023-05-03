@@ -536,7 +536,7 @@ void DVP_initialize() {
 	DVP->CR0 &= ~RB_DVP_MSK_DAT_MOD;
 
 #if (DVP_Work_Mode == RGB565_MODE)
-	/// VSYNC、HSYNC:High level active
+	/// VSYNC & HSYNC: High level active
 	DVP->CR0 |= RB_DVP_D10_MOD | RB_DVP_V_POLAR;
 	DVP->CR1 &= ~(RB_DVP_ALL_CLR | RB_DVP_RCV_CLR);
 	DVP->ROW_NUM = RGB565_ROW_NUM;	// rows
