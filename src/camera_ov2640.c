@@ -371,8 +371,9 @@ void DVP_initialize() {
 	/// VSYNC & HSYNC: High level active
 	DVP->CR0 |= RB_DVP_D10_MOD | RB_DVP_V_POLAR;
 	DVP->CR1 &= ~(RB_DVP_ALL_CLR | RB_DVP_RCV_CLR);
-	DVP->ROW_NUM = RGB565_ROW_NUM;	// rows
-	DVP->COL_NUM = RGB565_COL_NUM * 2; // cols
+
+	DVP->ROW_NUM = RGB565_ROW_NUM;
+	DVP->COL_NUM = RGB565_COL_NUM * 2;
 
 	DVP->DMA_BUF0 = (uint32_t) RGB565_DVPDMAaddr0; // DMA addr0
 	DVP->DMA_BUF1 = (uint32_t) RGB565_DVPDMAaddr1; // DMA addr1

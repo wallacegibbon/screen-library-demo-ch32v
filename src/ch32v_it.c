@@ -18,6 +18,10 @@ void DVP_RowDoneHandler() {
 	else
 		dvp_dma_addr = (uintptr_t) RGB565_DVPDMAaddr1;
 
+	/// In RGB565 mode, every pixel takes 2 bytes. But the DVP of MCU
+	/// works in 10-bit mode, every 10-bit data takes 2 bytes,
+	/// so every pixel takes 4 bytes in this program.
+	/// Convert the 4 bytes to 2 bytes with a `>> 2` (Y9-Y2 -> D7-D0)
 	for (i = 0; i < RGB565_COL_NUM; i++)
 		*(uint8_t *) (dvp_dma_addr + i) =
 			*(uint16_t *) (dvp_dma_addr + i * 2) >> 2;
