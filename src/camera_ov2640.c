@@ -36,6 +36,8 @@ uint8_t JPEG_DVPDMAaddr0[OV2640_JPEG_WIDTH];
 uint8_t JPEG_DVPDMAaddr1[OV2640_JPEG_WIDTH];
 */
 
+/// The size of buffer should be able to contains one ROW of data.
+/// (since DVP will switch buffer when one ROW of data is finished.)
 uint8_t RGB565_DVPDMAaddr0[RGB565_COL_NUM * 2];
 uint8_t RGB565_DVPDMAaddr1[RGB565_COL_NUM * 2];
 
@@ -381,9 +383,9 @@ void DVP_initialize() {
 
 	/// Set frame capture rate
 	DVP->CR1 &= ~RB_DVP_FCRC;
-	DVP->CR1 |= DVP_RATE_100P; // 100%
+	DVP->CR1 |= DVP_RATE_100P;
 
-	/// These 5 interrupt shares DVP_IRQHandler
+	/// These 5 interrupts share DVP_IRQHandler
 	DVP->IER |= RB_DVP_IE_STP_FRM;
 	DVP->IER |= RB_DVP_IE_FIFO_OV;
 	DVP->IER |= RB_DVP_IE_FRM_DONE;
