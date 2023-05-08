@@ -95,25 +95,9 @@ void initialize_screen_3(
 }
 
 void graphic_play(struct Painter *painter) {
-	//struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
-	//struct SSD1306_Screen screen1;
-	//struct ST7735_ScreenAdaptorCH32VSPI adaptor2;
-	//struct ST7735_Screen screen2;
-	struct ST7789_ScreenAdaptorCH32VFSMC adaptor3;
-	struct ST7789_Screen screen3;
 	struct Point p1;
 	struct Point p2;
 	struct Point size;
-
-	//initialize_screen_1(&screen1, &adaptor1);
-	//initialize_screen_2(&screen2, &adaptor2);
-	initialize_screen_3(&screen3, &adaptor3);
-
-	//SSD1306_Screen_set_up_down_invert(&screen1);
-
-	//painter->drawing_board = (struct DrawingBoardInterface **) &screen1;
-	//painter->drawing_board = (struct DrawingBoardInterface **) &screen2;
-	painter->drawing_board = (struct DrawingBoardInterface **) &screen3;
 
 	Painter_clear(painter, BLACK_16bit);
 
@@ -164,30 +148,17 @@ void DMA_SRAMLCD_initialize(uintptr_t periph_address) {
 	DMA_Init(DMA2_Channel5, &DMA_InitStructure);
 }
 
-void main() {
-	struct ST7789_ScreenAdaptorCH32VFSMC adaptor3;
-	struct ST7789_Screen screen3;
-	struct Painter painter;
-	struct Point p1;
-	struct Point p2;
+void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
+	struct Point p1, p2;
 
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-	initialize_systick_interrupt();
+	Painter_clear(painter, BLACK_16bit);
+	//Painter_clear(painter, RED_16bit);
 
-	//USART_printf_initialize(115200);
-	//printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
-
-	//graphic_play(&painter);
-
-	initialize_screen_3(&screen3, &adaptor3);
-	painter.drawing_board = (struct DrawingBoardInterface **) &screen3;
-
-	Painter_clear(&painter, BLACK_16bit);
-	//Painter_clear(&painter, RED_16bit);
-
-	Point_initialize(&p1, 0, 40);
-	Point_initialize(&p2, 239, 199);
-	ST7789_Screen_set_address(&screen3, p1, p2);
+	//Point_initialize(&p1, 0, 40);
+	//Point_initialize(&p2, 239, 199);
+	Point_initialize(&p1, 0, 0);
+	Point_initialize(&p2, 239, 239);
+	ST7789_Screen_set_address(screen, p1, p2);
 
 	while (ov2640_initialize())
 		delay_ms(500);
@@ -201,5 +172,34 @@ void main() {
 	DVP_initialize();
 
 	while (1);
+}
+
+void main() {
+	//struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
+	//struct SSD1306_Screen screen1;
+	//struct ST7735_ScreenAdaptorCH32VSPI adaptor2;
+	//struct ST7735_Screen screen2;
+	struct ST7789_ScreenAdaptorCH32VFSMC adaptor3;
+	struct ST7789_Screen screen3;
+	struct Painter painter;
+
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	initialize_systick_interrupt();
+
+	//initialize_screen_1(&screen1, &adaptor1);
+	//initialize_screen_2(&screen2, &adaptor2);
+	initialize_screen_3(&screen3, &adaptor3);
+
+	//SSD1306_Screen_set_up_down_invert(&screen1);
+
+	//painter.drawing_board = (struct DrawingBoardInterface **) &screen1;
+	//painter.drawing_board = (struct DrawingBoardInterface **) &screen2;
+	painter.drawing_board = (struct DrawingBoardInterface **) &screen3;
+
+	//USART_printf_initialize(115200);
+	//printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
+
+	//graphic_play(&painter);
+	camera_display(&painter, &screen3);
 }
 

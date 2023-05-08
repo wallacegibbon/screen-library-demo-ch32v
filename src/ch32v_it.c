@@ -7,10 +7,9 @@ static volatile uint32_t href_cnt = 0;
 
 void DVP_RowDoneHandler() {
 	uintptr_t dvp_dma_addr;
-	int i;
+	int i, columns;
 
 	DVP->IFR &= ~RB_DVP_IF_ROW_DONE;
-#if (DVP_Work_Mode == RGB565_MODE)
 	DMA_Cmd(DMA2_Channel5, DISABLE);
 
 	if (addr_cnt % 2)
@@ -18,29 +17,29 @@ void DVP_RowDoneHandler() {
 	else
 		dvp_dma_addr = (uintptr_t) RGB565_DVPDMAaddr1;
 
+	/// columns is defined by the size of the LCD.
+	columns = 240 * 2;
+
 	/// In RGB565 mode, every pixel takes 2 bytes. But the DVP of MCU
 	/// works in 10-bit mode, every 10-bit data takes 2 bytes,
 	/// so every pixel takes 4 bytes in this program.
 	/// Convert the 4 bytes to 2 bytes with a `>> 2` (Y9-Y2 -> D7-D0)
-	for (i = 0; i < RGB565_COL_NUM; i++)
+	for (i = 0; i < columns; i++)
 		*(uint8_t *) (dvp_dma_addr + i) =
 			*(uint16_t *) (dvp_dma_addr + i * 2) >> 2;
 
-	DMA_SetCurrDataCounter(DMA2_Channel5, RGB565_COL_NUM);
+	DMA_SetCurrDataCounter(DMA2_Channel5, columns);
 	DMA2_Channel5->PADDR = dvp_dma_addr;
 	DMA_Cmd(DMA2_Channel5, ENABLE);
 
 	addr_cnt++;
 	href_cnt++;
-#endif
 }
 
 void DVP_FrmDoneHandler() {
 	DVP->IFR &= ~RB_DVP_IF_FRM_DONE;
-#if (DVP_Work_Mode == RGB565_MODE)
 	addr_cnt = 0;
         href_cnt = 0;
-#endif
 }
 
 void DVP_StrFrmHandler() {

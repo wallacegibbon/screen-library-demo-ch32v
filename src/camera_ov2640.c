@@ -3,43 +3,17 @@
 #include "ch32v30x.h"
 #include <stdint.h>
 
-#define OV_RESET_SET (GPIOB->BSHR = GPIO_Pin_7)
-#define OV_RESET_CLR (GPIOB->BCR = GPIO_Pin_7)
-#define OV_PWDN_SET (GPIOC->BSHR = GPIO_Pin_7)
-#define OV_PWDN_CLR (GPIOC->BCR = GPIO_Pin_7)
+#define RGB565_COL_NUM			320
+#define RGB565_ROW_NUM			240
 
-#define IIC_SCL_IN \
-	do { GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 8 << 8; } while (0)
-
-#define IIC_SCL_OUT \
-	do { GPIOB->CFGHR &= 0XFFFFF0FF; GPIOB->CFGHR |= 3 << 8; } while (0)
-
-#define IIC_SDA_IN \
-	do { GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 8 << 12; } while (0)
-
-#define IIC_SDA_OUT \
-	do { GPIOB->CFGHR &= 0XFFFF0FFF; GPIOB->CFGHR |= 3 << 12; } while (0)
-
-#define IIC_SDA_SET (GPIOB->BSHR = GPIO_Pin_11)
-#define IIC_SDA_CLR (GPIOB->BCR = GPIO_Pin_11)
-#define IIC_SCL_SET (GPIOB->BSHR = GPIO_Pin_10)
-#define IIC_SCL_CLR (GPIOB->BCR = GPIO_Pin_10)
-
-/// SDA In
-#define SDA_IN_R (GPIOB->INDR & GPIO_Pin_11)
-
-//#define DVP_Work_Mode 0
-#define DVP_Work_Mode RGB565_MODE
-
-/*
-uint8_t JPEG_DVPDMAaddr0[OV2640_JPEG_WIDTH];
-uint8_t JPEG_DVPDMAaddr1[OV2640_JPEG_WIDTH];
-*/
+#define OV2640_MID			0X7FA2
+#define OV2640_PID			0X2642
+#define OV2640_SCCB_ID			0X60
 
 /// The size of buffer should be able to contains one ROW of data.
 /// (since DVP will switch buffer when one ROW of data is finished.)
-uint8_t RGB565_DVPDMAaddr0[RGB565_COL_NUM * 2];
-uint8_t RGB565_DVPDMAaddr1[RGB565_COL_NUM * 2];
+uint8_t RGB565_DVPDMAaddr0[240 * 4];
+uint8_t RGB565_DVPDMAaddr1[240 * 4];
 
 int SCCB_write_reg(uint8_t reg_addr, uint8_t reg_data);
 uint8_t SCCB_read_reg(uint8_t reg_addr);
@@ -353,11 +327,43 @@ static void DVP_gpio_initialize() {
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 }
 
+static inline void ov_reset_set() { GPIOB->BSHR = GPIO_Pin_7; }
+static inline void ov_reset_clr() { GPIOB->BCR = GPIO_Pin_7; }
+static inline void ov_pwdn_set() { GPIOC->BSHR = GPIO_Pin_7; }
+static inline void ov_pwdn_clr() { GPIOC->BCR = GPIO_Pin_7; }
+
+static inline void iic_sda_set() { GPIOB->BSHR = GPIO_Pin_11; }
+static inline void iic_sda_clr() { GPIOB->BCR = GPIO_Pin_11; }
+static inline void iic_scl_set() { GPIOB->BSHR = GPIO_Pin_10; }
+static inline void iic_scl_clr() { GPIOB->BCR = GPIO_Pin_10; }
+
+static inline int iic_sda_read() { return GPIOB->INDR & GPIO_Pin_11; }
+
+static inline void iic_scl_in() {
+	GPIOB->CFGHR &= 0XFFFFF0FF;
+	GPIOB->CFGHR |= 8 << 8;
+}
+
+static inline void iic_scl_out() {
+	GPIOB->CFGHR &= 0XFFFFF0FF;
+	GPIOB->CFGHR |= 3 << 8;
+}
+
+static inline void iic_sda_in() {
+	GPIOB->CFGHR &= 0XFFFF0FFF;
+	GPIOB->CFGHR |= 8 << 12;
+}
+
+static inline void iic_sda_out() {
+	GPIOB->CFGHR &= 0XFFFF0FFF;
+	GPIOB->CFGHR |= 3 << 12;
+}
+
 void SCCB_gpio_initialize() {
-	IIC_SCL_OUT;
-	IIC_SDA_OUT;
-	IIC_SCL_SET;
-	IIC_SDA_SET;
+	iic_scl_out();
+	iic_sda_out();
+	iic_scl_set();
+	iic_sda_set();
 }
 
 void DVP_initialize() {
@@ -369,17 +375,30 @@ void DVP_initialize() {
 
 	DVP->CR0 &= ~RB_DVP_MSK_DAT_MOD;
 
-#if (DVP_Work_Mode == RGB565_MODE)
 	/// VSYNC & HSYNC: High level active
 	DVP->CR0 |= RB_DVP_D10_MOD | RB_DVP_V_POLAR;
 	DVP->CR1 &= ~(RB_DVP_ALL_CLR | RB_DVP_RCV_CLR);
 
+	/// COL_NUM represents the PCLK number of one row of data.
+	DVP->COL_NUM = RGB565_COL_NUM * 4;
+	/// ROW_NUM does't matter in this program since we don't use FRM_DONE.
 	DVP->ROW_NUM = RGB565_ROW_NUM;
-	DVP->COL_NUM = RGB565_COL_NUM * 2;
 
-	DVP->DMA_BUF0 = (uint32_t) RGB565_DVPDMAaddr0; // DMA addr0
-	DVP->DMA_BUF1 = (uint32_t) RGB565_DVPDMAaddr1; // DMA addr1
-#endif
+	DVP->DMA_BUF0 = (uint32_t) RGB565_DVPDMAaddr0;
+	DVP->DMA_BUF1 = (uint32_t) RGB565_DVPDMAaddr1;
+
+	/// When Crop is enabled, COL_NUM and ROW_NUM will take no effect,
+	/// and CAPCNT and VLINE define the size.
+
+	/// start x position
+	DVP->HOFFCNT = (RGB565_COL_NUM - 240) * 2 / 2;
+	/// start y position
+	DVP->VST = (RGB565_ROW_NUM - 240) * 2 / 2;
+	/// size of the crop window
+	DVP->CAPCNT = 240 * 2;
+	DVP->VLINE = 240 * 2;
+
+	DVP->CR1 |= RB_DVP_CROP;
 
 	/// Set frame capture rate
 	DVP->CR1 &= ~RB_DVP_FCRC;
@@ -413,11 +432,11 @@ int ov2640_initialize() {
 
 	SCCB_gpio_initialize();
 
-	OV_PWDN_CLR;
+	ov_pwdn_clr();
 	delay_ms(10);
-	OV_RESET_CLR;
+	ov_reset_clr();
 	delay_ms(10);
-	OV_RESET_SET;
+	ov_reset_set();
 
 	/// select sensor register bank
 	SCCB_write_reg(0xFF, 0x01);
@@ -495,69 +514,64 @@ int ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
 	SCCB_write_reg(0x11, xclk_div);
 }
 
-void ov2640_JPEG_mode_initialize() {
-	ov2640_JPEG_mode();
-	ov2640_outsize_set(OV2640_JPEG_WIDTH, OV2640_JPEG_HEIGHT);
-	ov2640_speed_set(30, 1);
-}
-
 void ov2640_RGB565_mode_initialize() {
 	ov2640_RGB565_mode();
-	ov2640_outsize_set(OV2640_RGB565_WIDTH, OV2640_RGB565_HEIGHT);
-	ov2640_speed_set(15, 3);
+	ov2640_outsize_set(RGB565_COL_NUM, RGB565_ROW_NUM);
+	//ov2640_speed_set(15, 3);
+	ov2640_speed_set(1, 1);
 }
 
 void SCCB_start() {
-	IIC_SDA_SET;
-	IIC_SCL_SET;
+	iic_sda_set();
+	iic_scl_set();
 	delay_us(50);
-	IIC_SDA_CLR;
+	iic_sda_clr();
 	delay_us(50);
-	IIC_SCL_CLR;
+	iic_scl_clr();
 }
 
 void SCCB_stop() {
-	IIC_SDA_CLR;
+	iic_sda_clr();
 	delay_us(50);
-	IIC_SCL_SET;
+	iic_scl_set();
 	delay_us(50);
-	IIC_SDA_SET;
+	iic_sda_set();
 	delay_us(50);
 }
 
 void SCCB_no_ack() {
 	delay_us(50);
-	IIC_SDA_SET;
-	IIC_SCL_SET;
+	iic_sda_set();
+	iic_scl_set();
 	delay_us(50);
-	IIC_SCL_CLR;
+	iic_scl_clr();
 	delay_us(50);
-	IIC_SDA_CLR;
+	iic_sda_clr();
 	delay_us(50);
 }
 
 int SCCB_write_byte(uint8_t data) {
 	int i, t;
 	for (i = 0; i < 8; i++) {
-		if (data & 0x80) IIC_SDA_SET;
-		else IIC_SDA_CLR;
+		if (data & 0x80) iic_sda_set();
+		else iic_sda_clr();
 
 		data <<= 1;
 		delay_us(50);
-		IIC_SCL_SET;
+		iic_scl_set();
 		delay_us(50);
-		IIC_SCL_CLR;
+		iic_scl_clr();
 	}
 
-	IIC_SDA_IN;
+	iic_sda_in();
 	delay_us(50);
-	IIC_SCL_SET;
+	iic_scl_set();
 	delay_us(50);
 
-	t = !!SDA_IN_R;
+	t = !!iic_sda_read();
 
-	IIC_SCL_CLR;
-	IIC_SDA_OUT;
+	iic_scl_clr();
+	iic_sda_out();
 
 	return t;
 }
@@ -565,20 +579,20 @@ int SCCB_write_byte(uint8_t data) {
 uint8_t SCCB_read_byte() {
 	int i, t = 0;
 
-	IIC_SDA_IN;
+	iic_sda_in();
 
 	for (i = 0; i < 8; i++) {
 		delay_us(50);
-		IIC_SCL_SET;
+		iic_scl_set();
 
 		t <<= 1;
-		if (SDA_IN_R) t |= 1;
+		if (iic_sda_read()) t |= 1;
 
 		delay_us(50);
-		IIC_SCL_CLR;
+		iic_scl_clr();
 	}
 
-	IIC_SDA_OUT;
+	iic_sda_out();
 	return t;
 }
 
