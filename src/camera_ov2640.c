@@ -3,13 +3,6 @@
 #include "ch32v30x.h"
 #include <stdint.h>
 
-#define RGB565_COL_NUM			320
-#define RGB565_ROW_NUM			240
-
-#define OV2640_MID			0X7FA2
-#define OV2640_PID			0X2642
-#define OV2640_SCCB_ID			0X60
-
 /// The size of buffer should be able to contains one ROW of data.
 /// (since DVP will switch buffer when one ROW of data is finished.)
 uint8_t RGB565_DVPDMAaddr0[240 * 4];
@@ -17,6 +10,13 @@ uint8_t RGB565_DVPDMAaddr1[240 * 4];
 
 int SCCB_write_reg(uint8_t reg_addr, uint8_t reg_data);
 uint8_t SCCB_read_reg(uint8_t reg_addr);
+
+#define RGB565_COL_NUM 320
+#define RGB565_ROW_NUM 240
+
+#define OV2640_MID 0X7FA2
+#define OV2640_PID 0X2642
+#define OV2640_SCCB_ID 0X60
 
 /// Start Camera list of initialization configuration registers
 static const uint8_t ov2640_init_reg_tbl[] = {
@@ -35,8 +35,8 @@ static const uint8_t ov2640_init_reg_tbl[] = {
 	/// 2x capability
 	0x09, 0x02,
 
-	/// enable horizontal mirror
-	0x04, 0xD8,
+	/// upside down
+	//0x04, 0xD8,
 
 	/// AGC control: auto; exposure control: auto
 	0x13, 0xE5,
