@@ -28,8 +28,8 @@ void DVP_RowDoneHandler() {
 		*(uint8_t *) (dvp_dma_addr + i) =
 			*(uint16_t *) (dvp_dma_addr + i * 2) >> 2;
 
-	DMA_SetCurrDataCounter(DMA2_Channel5, columns);
 	DMA2_Channel5->PADDR = dvp_dma_addr;
+	DMA2_Channel5->CNTR = columns;
 	DMA_Cmd(DMA2_Channel5, ENABLE);
 
 	addr_cnt++;

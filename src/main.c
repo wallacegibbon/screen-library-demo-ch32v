@@ -158,8 +158,12 @@ void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
 	//Point_initialize(&p2, 239, 199);
 	//Point_initialize(&p1, 0, 0);
 	//Point_initialize(&p2, 239, 239);
+
+	/// All you need to make sure is `p2.y - p1.y == 239`, and `p1.y < 0`.
 	Point_initialize(&p1, 0, -1);
 	Point_initialize(&p2, 239, 238);
+	//Point_initialize(&p1, 0, -11);
+	//Point_initialize(&p2, 239, 228);
 	ST7789_Screen_set_address(screen, p1, p2);
 
 	while (ov2640_initialize())
