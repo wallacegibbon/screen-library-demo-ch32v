@@ -39,7 +39,7 @@ void DVP_RowDoneHandler() {
 void DVP_FrmDoneHandler() {
 	DVP->IFR &= ~RB_DVP_IF_FRM_DONE;
 	addr_cnt = 0;
-        href_cnt = 0;
+	href_cnt = 0;
 }
 
 void DVP_StrFrmHandler() {

@@ -101,7 +101,7 @@ void graphic_play(struct Painter *painter) {
 
 	Painter_clear(painter, BLACK_16bit);
 
-	/// The default method do not flush, but some overriding `clear` method
+	/// The default method do not flush, but some overridden `clear` method
 	// do flush automatically.
 	//Painter_flush(painter);
 
@@ -156,8 +156,10 @@ void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
 
 	//Point_initialize(&p1, 0, 40);
 	//Point_initialize(&p2, 239, 199);
-	Point_initialize(&p1, 0, 0);
-	Point_initialize(&p2, 239, 239);
+	//Point_initialize(&p1, 0, 0);
+	//Point_initialize(&p2, 239, 239);
+	Point_initialize(&p1, 0, -1);
+	Point_initialize(&p2, 239, 238);
 	ST7789_Screen_set_address(screen, p1, p2);
 
 	while (ov2640_initialize())
