@@ -2,11 +2,19 @@
 #include "camera_ov2640.h"
 #include "ch32v30x.h"
 #include <stdint.h>
+#include <unistd.h>
+#include <assert.h>
 
-/// The size of buffer should be able to contains one ROW of data.
-/// (since DVP will switch buffer when one ROW of data is finished.)
-uint8_t RGB565_DVPDMAaddr0[240 * 4];
-uint8_t RGB565_DVPDMAaddr1[240 * 4];
+extern uint16_t camera_screen_width;
+extern uint16_t camera_screen_height;
+
+/// The size of buffer should be able to contains one ROW of data from DVP.
+/// 	(since DVP will switch buffer when one ROW of data is finished.)
+///
+/// In RGB565 mode, every pixel takes 2 bytes. But the DVP of MCU works in
+/// 10-bit mode, every 10-bit data takes 2 bytes, so every pixel takes 4 bytes.
+uint8_t *RGB565_dvp_dma_buffer0;
+uint8_t *RGB565_dvp_dma_buffer1;
 
 int SCCB_write_reg(uint8_t reg_addr, uint8_t reg_data);
 uint8_t SCCB_read_reg(uint8_t reg_addr);
@@ -366,8 +374,14 @@ void SCCB_gpio_initialize() {
 	iic_sda_set();
 }
 
+/// This function should be called after `camera_screen_width` got initialized.
 void DVP_initialize() {
-	NVIC_InitTypeDef NVIC_InitStructure = {0};
+	NVIC_InitTypeDef NVIC_InitStructure = { 0 };
+
+	//assert(camera_screen_width > 0);
+	//assert(camera_screen_height > 0);
+	//assert(camera_screen_width <= RGB565_COL_NUM);
+	//assert(camera_screen_height <= RGB565_ROW_NUM);
 
 	DVP_gpio_initialize();
 
@@ -384,19 +398,25 @@ void DVP_initialize() {
 	/// ROW_NUM does't matter in this program since we don't use FRM_DONE.
 	DVP->ROW_NUM = RGB565_ROW_NUM;
 
-	DVP->DMA_BUF0 = (uint32_t) RGB565_DVPDMAaddr0;
-	DVP->DMA_BUF1 = (uint32_t) RGB565_DVPDMAaddr1;
+	/// DVP will be cropped to fit into the screen.
+	RGB565_dvp_dma_buffer0 = sbrk(camera_screen_width * 4);
+	RGB565_dvp_dma_buffer1 = sbrk(camera_screen_width * 4);
+	//assert(RGB565_dvp_dma_buffer0 > 0);
+	//assert(RGB565_dvp_dma_buffer1 > 0);
+
+	DVP->DMA_BUF0 = (uint32_t) RGB565_dvp_dma_buffer0;
+	DVP->DMA_BUF1 = (uint32_t) RGB565_dvp_dma_buffer1;
 
 	/// When Crop is enabled, COL_NUM and ROW_NUM will take no effect,
 	/// and CAPCNT and VLINE define the size.
 
 	/// start x position
-	DVP->HOFFCNT = (RGB565_COL_NUM - 240) * 2 / 2;
+	DVP->HOFFCNT = (RGB565_COL_NUM - camera_screen_width) * 2 / 2;
 	/// start y position
-	DVP->VST = (RGB565_ROW_NUM - 240) * 2 / 2;
+	DVP->VST = (RGB565_ROW_NUM - camera_screen_height) * 2 / 2;
 	/// size of the crop window
-	DVP->CAPCNT = 240 * 2;
-	DVP->VLINE = 240 * 2;
+	DVP->CAPCNT = camera_screen_width * 2;
+	DVP->VLINE = camera_screen_height * 2;
 
 	DVP->CR1 |= RB_DVP_CROP;
 

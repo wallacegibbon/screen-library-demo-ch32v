@@ -13,6 +13,11 @@
 #include "ch32v30x.h"
 #include <stdio.h>
 
+/// global variables that should be initialzed to the size of the target screen
+/// on startup. (before DVP initializing and DVP interrupts)
+uint16_t camera_screen_width;
+uint16_t camera_screen_height;
+
 void fancy_display(struct Painter *painter) {
 	static int current_cnt = 0, step = 1;
 	struct Point p;
@@ -149,32 +154,34 @@ void DMA_SRAMLCD_initialize(uintptr_t periph_address) {
 }
 
 void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
-	struct Point p1, p2;
+	struct Point p1, p2, size;
+
+	Painter_size(painter, &size);
+	/// initialize global variables that represent the size of the screen.
+	camera_screen_width = size.x;
+	camera_screen_height = size.y;
 
 	Painter_clear(painter, BLACK_16bit);
 	//Painter_clear(painter, RED_16bit);
 
-	//Point_initialize(&p1, 0, 40);
-	//Point_initialize(&p2, 239, 199);
 	//Point_initialize(&p1, 0, 0);
-	//Point_initialize(&p2, 239, 239);
+	//Point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1);
 
-	/// All you need to make sure is `p2.y - p1.y == 239`, and `p1.y < 0`.
+	/// Make sure that `p2.y - p1.y == camera_screen_height - 1`, and `p1.y < 0`.
 	Point_initialize(&p1, 0, -1);
-	Point_initialize(&p2, 239, 238);
-	//Point_initialize(&p1, 0, -11);
-	//Point_initialize(&p2, 239, 228);
+	Point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1 - 1);
+	//Point_initialize(&p1, 0, -10);
+	//Point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1 - 10);
 	ST7789_Screen_set_address(screen, p1, p2);
 
 	while (ov2640_initialize())
 		delay_ms(500);
 
 	delay_ms(100);
-	//ov2640_JPEG_mode_initialize();
 	ov2640_RGB565_mode_initialize();
 	delay_ms(100);
 
-	DMA_SRAMLCD_initialize((uintptr_t) RGB565_DVPDMAaddr0);
+	DMA_SRAMLCD_initialize((uintptr_t) RGB565_dvp_dma_buffer0);
 	DVP_initialize();
 
 	while (1);
