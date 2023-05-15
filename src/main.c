@@ -73,12 +73,57 @@ void initialize_screen_2(
 }
 */
 
+void lcd_bg_pwm_initialize(
+	uint16_t prescale, uint16_t period, uint16_t compare_value
+) {
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
+	TIM_OCInitTypeDef TIM_OCInitStructure;
+	GPIO_InitTypeDef GPIO_InitStructure = { 0 };
+
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_TIM1, ENABLE);
+
+	/// BG LED
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+
+	/// TIMx->ATRLR
+	TIM_TimeBaseInitStructure.TIM_Period = period;
+
+	/// TIMx->PSC
+	TIM_TimeBaseInitStructure.TIM_Prescaler = prescale;
+
+	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseInitStructure);
+
+	/// `TIM1_CH2N` is mapped to `PB14` (which is connected to LEDK)
+	/// PB14 = 1 (CH2N = 1 & CH2 = 0) will open background LED.
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Disable;
+	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
+
+	/// TIMx->CH2CVR
+	TIM_OCInitStructure.TIM_Pulse = compare_value;
+
+	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
+	TIM_OC2Init(TIM1, &TIM_OCInitStructure);
+
+	TIM_CtrlPWMOutputs(TIM1, ENABLE);
+	TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Disable);
+	TIM_ARRPreloadConfig(TIM1, ENABLE);
+	TIM_Cmd(TIM1, ENABLE);
+}
+
+void lcd_bg_set_brightness(uint16_t brightness) {
+	TIM1->CH2CVR = brightness;
+}
+
 void initialize_screen_3(
 	struct ST7789_Screen *screen3,
 	struct ST7789_ScreenAdaptorCH32VFSMC *adaptor3
 ) {
-	GPIO_InitTypeDef GPIO_InitStructure = { 0 };
-
 	ST7789_ScreenAdaptorCH32VFSMC_initialize(
 		adaptor3
 	);
@@ -88,15 +133,10 @@ void initialize_screen_3(
 		(struct ST7789_ScreenAdaptorInterface **) adaptor3
 	);
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	//GPIO_SetBits(GPIOB, GPIO_Pin_14);
 
-	/// BG LED
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_14;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-	GPIO_SetBits(GPIOB, GPIO_Pin_14);
+	lcd_bg_pwm_initialize(144 - 1, 100, 50);
+	lcd_bg_set_brightness(20);
 }
 
 void graphic_play(struct Painter *painter) {
@@ -212,7 +252,7 @@ void main() {
 	//USART_printf_initialize(115200);
 	//printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
-	//graphic_play(&painter);
-	camera_display(&painter, &screen3);
+	//camera_display(&painter, &screen3);
+	graphic_play(&painter);
 }
 
