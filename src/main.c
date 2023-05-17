@@ -147,7 +147,7 @@ void graphic_play(struct Painter *painter) {
 	Painter_clear(painter, BLACK_16bit);
 
 	/// The default method do not flush, but some overridden `clear` method
-	// do flush automatically.
+	/// do flush automatically.
 	//Painter_flush(painter);
 
 	Painter_size(painter, &size);
