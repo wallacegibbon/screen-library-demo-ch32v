@@ -159,6 +159,11 @@ void graphic_play(struct Painter *painter) {
 	Point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
 	Painter_draw_circle(painter, p1, 5, RED_16bit);
 
+	Point_initialize(&p1, 10, 10);
+	//Painter_draw_circle(painter, p1, 5, YELLOW_16bit);
+	Painter_draw_string(painter, "Hello, CHITU !", p1, 16, RED_16bit, BLACK_16bit);
+	//Painter_draw_char(painter, 'X', p1, 16, RED_16bit, BLACK_16bit);
+
 	/*
 	Point_initialize(&p1, 0, 0);
 	Point_initialize(&p2, 20, 50);
@@ -167,9 +172,8 @@ void graphic_play(struct Painter *painter) {
 
 	Painter_flush(painter);
 
-	while (1) {
+	while (1)
 		fancy_display(painter);
-	}
 }
 
 void DMA_SRAMLCD_initialize(uintptr_t periph_address) {
