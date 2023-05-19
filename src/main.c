@@ -143,6 +143,7 @@ void graphic_play(struct Painter *painter) {
 	struct Point p1;
 	struct Point p2;
 	struct Point size;
+	struct ColorPair color_pair;
 
 	Painter_clear(painter, BLACK_16bit);
 
@@ -159,10 +160,12 @@ void graphic_play(struct Painter *painter) {
 	Point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
 	Painter_draw_circle(painter, p1, 5, RED_16bit);
 
-	Point_initialize(&p1, 10, 10);
-	//Painter_draw_circle(painter, p1, 5, YELLOW_16bit);
-	Painter_draw_string(painter, "Hello, CHITU !", p1, 16, RED_16bit, BLACK_16bit);
-	//Painter_draw_char(painter, 'X', p1, 16, RED_16bit, BLACK_16bit);
+	ColorPair_initialize(&color_pair, RED_16bit, BLACK_16bit);
+	Point_initialize(&p1, 0, 0);
+	Painter_draw_string(painter, "WX, CHITU !", p1, 32, color_pair);
+
+	Point_initialize(&p1, 0, 32);
+	Painter_draw_string(painter, "WX, CHITU !", p1, 16, color_pair);
 
 	/*
 	Point_initialize(&p1, 0, 0);
