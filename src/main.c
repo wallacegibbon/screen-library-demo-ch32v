@@ -12,6 +12,7 @@
 #include "ch32v_debug.h"
 #include "ch32v30x.h"
 #include <stdio.h>
+#include <math.h>
 
 /// global variables that should be initialzed to the size of the target screen
 /// on startup. (before DVP initializing and DVP interrupts)
@@ -50,8 +51,7 @@ void initialize_screen_1(
 	);
 
 	SSD1306_Screen_initialize(
-		screen1,
-		(struct SSD1306_ScreenAdaptorInterface **) adaptor1
+		screen1, (struct SSD1306_ScreenAdaptorInterface **) adaptor1
 	);
 
 	SSD1306_Screen_display_on(screen1);
@@ -67,8 +67,7 @@ void initialize_screen_2(
 	);
 
 	ST7735_Screen_initialize(
-		screen2,
-		(struct ST7735_ScreenAdaptorInterface **) adaptor2
+		screen2, (struct ST7735_ScreenAdaptorInterface **) adaptor2
 	);
 }
 */
@@ -124,13 +123,10 @@ void initialize_screen_3(
 	struct ST7789_Screen *screen3,
 	struct ST7789_ScreenAdaptorCH32VFSMC *adaptor3
 ) {
-	ST7789_ScreenAdaptorCH32VFSMC_initialize(
-		adaptor3
-	);
+	ST7789_ScreenAdaptorCH32VFSMC_initialize(adaptor3);
 
 	ST7789_Screen_initialize(
-		screen3,
-		(struct ST7789_ScreenAdaptorInterface **) adaptor3
+		screen3, (struct ST7789_ScreenAdaptorInterface **) adaptor3
 	);
 
 	//GPIO_SetBits(GPIOB, GPIO_Pin_14);
@@ -140,9 +136,7 @@ void initialize_screen_3(
 }
 
 void graphic_play(struct Painter *painter) {
-	struct Point p1;
-	struct Point p2;
-	struct Point size;
+	struct Point p1, p2, size;
 	struct ColorPair color_pair;
 
 	Painter_clear(painter, BLACK_16bit);
@@ -234,6 +228,30 @@ void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
 	while (1);
 }
 
+void compass_display(struct Painter *painter) {
+	struct Point p1, p2, size, center;
+	int r = 50;
+	float theta = 45.0 / 180.0 * M_PI;
+
+	Painter_clear(painter, BLACK_16bit);
+
+	Painter_size(painter, &size);
+	center.x = size.x / 2;
+	center.y = size.y / 2;
+
+	Point_initialize(
+		&p1, center.x + r * cos(theta), center.y - r * sin(theta)
+	);
+
+	Painter_draw_line(painter, p1, center, RED_16bit);
+
+	Point_initialize(
+		&p1, center.x - r * cos(theta), center.y + r * sin(theta)
+	);
+
+	Painter_draw_line(painter, p1, center, BLUE_16bit);
+}
+
 void main() {
 	//struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
 	//struct SSD1306_Screen screen1;
@@ -260,6 +278,7 @@ void main() {
 	//printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
 	//camera_display(&painter, &screen3);
-	graphic_play(&painter);
+	//graphic_play(&painter);
+	compass_display(&painter);
 }
 

@@ -20,6 +20,8 @@ CROSS_LINKER_SCRIPT = $(CH32_STD_LIB_DIR)/sample/default.ld
 
 CROSS_C_FLAGS += -DCHIP_CH32V30X
 
+CROSS_LD_FLAGS += -lm
+
 CROSS_C_INCLUDES = \
 $(CH32_STD_LIB_DIR)/peripheral/inc $(CH32_STD_LIB_DIR)/core \
 ./screen-library-mcu/ch32v ./screen-library-mcu ./src \
