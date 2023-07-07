@@ -21,3 +21,12 @@ OPENOCD_FLASH_COMMANDS = \
 > If you use the OpenOCD of some old-version MounRiver, you may face
 > some problems: <https://www.wch.cn/bbs/thread-96333-1.html#4>
 
+
+## Miscellaneous
+
+Generating `compile_commands.json` for clangd:
+
+```sh
+bear -- make
+```
+
