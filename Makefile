@@ -1,4 +1,4 @@
-CROSS_COMPILER_PREFIX = $(HOME)/MRS_Toolchain_Linux_x64_V1.60/RISC-V Embedded GCC/bin/riscv-none-embed-
+CROSS_COMPILER_PREFIX = $(HOME)/MRS_Toolchain_Linux_x64_V1.80/RISC-V Embedded GCC/bin/riscv-none-embed-
 OPENOCD = /usr/local/bin/openocd
 OPENOCD_ARGS = -f interface/wlink.cfg -f target/wch-riscv.cfg
 

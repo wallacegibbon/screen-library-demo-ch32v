@@ -480,26 +480,18 @@ int ov2640_initialize() {
 	if (reg != OV2640_PID)
 		return 2;
 
-	ov2640_send_command_table(
-		ov2640_init_reg_tbl, sizeof(ov2640_init_reg_tbl)
-	);
+	ov2640_send_command_table(ov2640_init_reg_tbl, sizeof(ov2640_init_reg_tbl));
 
 	return 0;
 }
 
 void ov2640_JPEG_mode() {
-	ov2640_send_command_table(
-		ov2640_yuv422_reg_tbl, sizeof(ov2640_yuv422_reg_tbl)
-	);
-	ov2640_send_command_table(
-		ov2640_jpeg_reg_tbl, sizeof(ov2640_jpeg_reg_tbl)
-	);
+	ov2640_send_command_table(ov2640_yuv422_reg_tbl, sizeof(ov2640_yuv422_reg_tbl));
+	ov2640_send_command_table(ov2640_jpeg_reg_tbl, sizeof(ov2640_jpeg_reg_tbl));
 }
 
 void ov2640_RGB565_mode() {
-	ov2640_send_command_table(
-		ov2640_rgb565_reg_tbl, sizeof(ov2640_rgb565_reg_tbl)
-	);
+	ov2640_send_command_table(ov2640_rgb565_reg_tbl, sizeof(ov2640_rgb565_reg_tbl));
 }
 
 /// Register 5A, 5B and 5C control the output size of OV2640.

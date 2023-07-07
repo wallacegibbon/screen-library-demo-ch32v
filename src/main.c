@@ -42,39 +42,19 @@ void fancy_display(struct Painter *painter) {
 }
 
 /*
-void initialize_screen_1(
-	struct SSD1306_Screen *screen1,
-	struct SSD1306_ScreenAdaptorCH32VI2C *adaptor1
-) {
-	SSD1306_ScreenAdaptorCH32VI2C_initialize(
-		adaptor1, 0x3C
-	);
-
-	SSD1306_Screen_initialize(
-		screen1, (struct SSD1306_ScreenAdaptorInterface **) adaptor1
-	);
-
+void initialize_screen_1(struct SSD1306_Screen *screen1, struct SSD1306_ScreenAdaptorCH32VI2C *adaptor1) {
+	SSD1306_ScreenAdaptorCH32VI2C_initialize(adaptor1, 0x3C);
+	SSD1306_Screen_initialize(screen1, (struct SSD1306_ScreenAdaptorInterface **) adaptor1);
 	SSD1306_Screen_display_on(screen1);
 }
 
-void initialize_screen_2(
-	struct ST7735_Screen *screen2,
-	struct ST7735_ScreenAdaptorCH32VSPI *adaptor2
-) {
-
-	ST7735_ScreenAdaptorCH32VSPI_initialize(
-		adaptor2, ...
-	);
-
-	ST7735_Screen_initialize(
-		screen2, (struct ST7735_ScreenAdaptorInterface **) adaptor2
-	);
+void initialize_screen_2(struct ST7735_Screen *screen2, struct ST7735_ScreenAdaptorCH32VSPI *adaptor2) {
+	ST7735_ScreenAdaptorCH32VSPI_initialize(adaptor2, ...);
+	ST7735_Screen_initialize(screen2, (struct ST7735_ScreenAdaptorInterface **) adaptor2);
 }
 */
 
-void lcd_bg_pwm_initialize(
-	uint16_t prescale, uint16_t period, uint16_t compare_value
-) {
+void lcd_bg_pwm_initialize(uint16_t prescale, uint16_t period, uint16_t compare_value) {
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
 	TIM_OCInitTypeDef TIM_OCInitStructure;
 	GPIO_InitTypeDef GPIO_InitStructure = { 0 };
@@ -119,15 +99,10 @@ void lcd_bg_set_brightness(uint16_t brightness) {
 	TIM1->CH2CVR = brightness;
 }
 
-void initialize_screen_3(
-	struct ST7789_Screen *screen3,
-	struct ST7789_ScreenAdaptorCH32VFSMC *adaptor3
-) {
+void initialize_screen_3(struct ST7789_Screen *screen3, struct ST7789_ScreenAdaptorCH32VFSMC *adaptor3) {
 	ST7789_ScreenAdaptorCH32VFSMC_initialize(adaptor3);
 
-	ST7789_Screen_initialize(
-		screen3, (struct ST7789_ScreenAdaptorInterface **) adaptor3
-	);
+	ST7789_Screen_initialize(screen3, (struct ST7789_ScreenAdaptorInterface **) adaptor3);
 
 	//GPIO_SetBits(GPIOB, GPIO_Pin_14);
 
@@ -239,16 +214,9 @@ void compass_display(struct Painter *painter) {
 	center.x = size.x / 2;
 	center.y = size.y / 2;
 
-	Point_initialize(
-		&p1, center.x + r * cos(theta), center.y - r * sin(theta)
-	);
-
+	Point_initialize(&p1, center.x + r * cos(theta), center.y - r * sin(theta));
 	Painter_draw_line(painter, p1, center, RED_16bit);
-
-	Point_initialize(
-		&p1, center.x - r * cos(theta), center.y + r * sin(theta)
-	);
-
+	Point_initialize(&p1, center.x - r * cos(theta), center.y + r * sin(theta));
 	Painter_draw_line(painter, p1, center, BLUE_16bit);
 }
 

@@ -29,8 +29,7 @@ void DVP_RowDoneHandler() {
 	/// Convert the loosely packed 4-byte RGB565 pixel to 2 bytes by a
 	/// shift operation: `>> 2` (Y9-Y2 -> D7-D0)
 	for (i = 0; i < columns; i++)
-		*(uint8_t *) (dvp_dma_buffer + i) =
-			*(uint16_t *) (dvp_dma_buffer + i * 2) >> 2;
+		*(uint8_t *) (dvp_dma_buffer + i) = *(uint16_t *) (dvp_dma_buffer + i * 2) >> 2;
 
 	DMA2_Channel5->PADDR = dvp_dma_buffer;
 	DMA2_Channel5->CNTR = columns;
