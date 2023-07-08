@@ -220,7 +220,7 @@ void compass_display(struct Painter *painter) {
 	Painter_draw_line(painter, p1, center, BLUE_16bit);
 }
 
-void main() {
+int main() {
 	//struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
 	//struct SSD1306_Screen screen1;
 	//struct ST7735_ScreenAdaptorCH32VSPI adaptor2;
@@ -248,5 +248,7 @@ void main() {
 	//camera_display(&painter, &screen3);
 	//graphic_play(&painter);
 	compass_display(&painter);
+
+	return 0;
 }
 
