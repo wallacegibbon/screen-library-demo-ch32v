@@ -30,3 +30,9 @@ Generating `compile_commands.json` for clangd:
 bear -- make
 ```
 
+When clangd does not work, you can set environment variable to see detailed log:
+
+```sh
+CLANGD_TRACE=/tmp/clangd_trace.json vi src/main.c
+```
+

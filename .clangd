@@ -1,0 +1,5 @@
+## vim: ft=yaml :
+
+CompileFlags:
+  Remove: ["-march=rv32imafc", "-mabi=ilp32f"]
+
