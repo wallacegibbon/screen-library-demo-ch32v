@@ -404,8 +404,8 @@ void DVP_initialize() {
 	//assert(RGB565_dvp_dma_buffer0 > 0);
 	//assert(RGB565_dvp_dma_buffer1 > 0);
 
-	DVP->DMA_BUF0 = (uint32_t) RGB565_dvp_dma_buffer0;
-	DVP->DMA_BUF1 = (uint32_t) RGB565_dvp_dma_buffer1;
+	DVP->DMA_BUF0 = (uintptr_t) RGB565_dvp_dma_buffer0;
+	DVP->DMA_BUF1 = (uintptr_t) RGB565_dvp_dma_buffer1;
 
 	/// When Crop is enabled, COL_NUM and ROW_NUM will take no effect,
 	/// and CAPCNT and VLINE define the size.
@@ -518,7 +518,7 @@ int ov2640_outsize_set(uint16_t image_width, uint16_t image_height) {
 	return 0;
 }
 
-int ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
+void ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
 	SCCB_write_reg(0xFF, 0);
 	SCCB_write_reg(0xD3, pclk_div);
 
