@@ -36,3 +36,8 @@ When clangd does not work, you can set environment variable to see detailed log:
 CLANGD_TRACE=/tmp/clangd_trace.json vi src/main.c
 ```
 
+## Caution
+
+When upgrading the toolchain, you need to change the `--sysroot` flag in `.clangd` file.
+
+
