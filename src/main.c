@@ -241,8 +241,8 @@ int main() {
 	//painter.drawing_board = (struct DrawingBoardInterface **) &screen2;
 	painter.drawing_board = (struct DrawingBoardInterface **) &screen3;
 
-	//usart_printf_initialize(115200);
-	//printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
+	usart_printf_initialize(115200);
+	printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
 	//camera_display(&painter, &screen3);
 	//graphic_play(&painter);
