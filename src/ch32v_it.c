@@ -8,7 +8,7 @@ static volatile uint32_t href_cnt = 0;
 
 extern uint16_t camera_screen_width;
 
-void DVP_RowDoneHandler() {
+void dvp_row_done_handler() {
 	uintptr_t dvp_dma_buffer;
 	int i, columns;
 
@@ -19,9 +19,9 @@ void DVP_RowDoneHandler() {
 	DMA_Cmd(DMA2_Channel5, DISABLE);
 
 	if (addr_cnt % 2)
-		dvp_dma_buffer = (uintptr_t) RGB565_dvp_dma_buffer0;
+		dvp_dma_buffer = (uintptr_t) rgb565_dvp_dma_buffer0;
 	else
-		dvp_dma_buffer = (uintptr_t) RGB565_dvp_dma_buffer1;
+		dvp_dma_buffer = (uintptr_t) rgb565_dvp_dma_buffer1;
 
 	/// The size of the buffer is `camera_screen_width * 4`.
 	columns = camera_screen_width * 2;
@@ -39,22 +39,22 @@ void DVP_RowDoneHandler() {
 	href_cnt++;
 }
 
-void DVP_FrmDoneHandler() {
+void dvp_frm_done_handler() {
 	DVP->IFR &= ~RB_DVP_IF_FRM_DONE;
 	addr_cnt = 0;
 	href_cnt = 0;
 }
 
-void DVP_StrFrmHandler() {
+void dvp_str_frm_handler() {
 	DVP->IFR &= ~RB_DVP_IF_STR_FRM;
 	frame_cnt++;
 }
 
-void DVP_StpFrmHandler() {
+void dvp_stp_frm_handler() {
 	DVP->IFR &= ~RB_DVP_IF_STP_FRM;
 }
 
-void DVP_FifoOvHandler() {
+void dvp_fifo_ov_handler() {
 	DVP->IFR &= ~RB_DVP_IF_FIFO_OV;
 	/// for debug
 	while (1);
@@ -62,11 +62,11 @@ void DVP_FifoOvHandler() {
 
 __attribute__((interrupt("WCH-Interrupt-fast")))
 void DVP_IRQHandler() {
-	if (DVP->IFR & RB_DVP_IF_ROW_DONE) DVP_RowDoneHandler();
-	if (DVP->IFR & RB_DVP_IF_FRM_DONE) DVP_FrmDoneHandler();
-	if (DVP->IFR & RB_DVP_IF_STR_FRM) DVP_StrFrmHandler();
-	if (DVP->IFR & RB_DVP_IF_STP_FRM) DVP_StpFrmHandler();
-	if (DVP->IFR & RB_DVP_IF_FIFO_OV) DVP_FifoOvHandler();
+	if (DVP->IFR & RB_DVP_IF_ROW_DONE) dvp_row_done_handler();
+	if (DVP->IFR & RB_DVP_IF_FRM_DONE) dvp_frm_done_handler();
+	if (DVP->IFR & RB_DVP_IF_STR_FRM) dvp_str_frm_handler();
+	if (DVP->IFR & RB_DVP_IF_STP_FRM) dvp_stp_frm_handler();
+	if (DVP->IFR & RB_DVP_IF_FIFO_OV) dvp_fifo_ov_handler();
 }
 
 __attribute__((interrupt("WCH-Interrupt-fast")))

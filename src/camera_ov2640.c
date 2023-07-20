@@ -13,8 +13,8 @@ extern uint16_t camera_screen_height;
 ///
 /// In RGB565 mode, every pixel takes 2 bytes. But the DVP of MCU works in
 /// 10-bit mode, every 10-bit data takes 2 bytes, so every pixel takes 4 bytes.
-uint8_t *RGB565_dvp_dma_buffer0;
-uint8_t *RGB565_dvp_dma_buffer1;
+uint8_t *rgb565_dvp_dma_buffer0;
+uint8_t *rgb565_dvp_dma_buffer1;
 
 int sccb_write_reg(uint8_t reg_addr, uint8_t reg_data);
 uint8_t sccb_read_reg(uint8_t reg_addr);
@@ -307,7 +307,7 @@ static const uint8_t ov2640_jpeg_reg_tbl[] = {
 	0xE0, 0x00,
 };
 
-static void DVP_gpio_initialize() {
+static void dvp_gpio_initialize() {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD, ENABLE);
@@ -383,7 +383,7 @@ void dvp_initialize() {
 	//assert(camera_screen_width <= RGB565_COL_NUM);
 	//assert(camera_screen_height <= RGB565_ROW_NUM);
 
-	DVP_gpio_initialize();
+	dvp_gpio_initialize();
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DVP, ENABLE);
 
@@ -399,13 +399,13 @@ void dvp_initialize() {
 	DVP->ROW_NUM = RGB565_ROW_NUM;
 
 	/// DVP will be cropped to fit into the screen.
-	RGB565_dvp_dma_buffer0 = sbrk(camera_screen_width * 4);
-	RGB565_dvp_dma_buffer1 = sbrk(camera_screen_width * 4);
+	rgb565_dvp_dma_buffer0 = sbrk(camera_screen_width * 4);
+	rgb565_dvp_dma_buffer1 = sbrk(camera_screen_width * 4);
 	//assert(RGB565_dvp_dma_buffer0 > 0);
 	//assert(RGB565_dvp_dma_buffer1 > 0);
 
-	DVP->DMA_BUF0 = (uintptr_t) RGB565_dvp_dma_buffer0;
-	DVP->DMA_BUF1 = (uintptr_t) RGB565_dvp_dma_buffer1;
+	DVP->DMA_BUF0 = (uintptr_t) rgb565_dvp_dma_buffer0;
+	DVP->DMA_BUF1 = (uintptr_t) rgb565_dvp_dma_buffer1;
 
 	/// When Crop is enabled, COL_NUM and ROW_NUM will take no effect,
 	/// and CAPCNT and VLINE define the size.
@@ -485,12 +485,12 @@ int ov2640_initialize() {
 	return 0;
 }
 
-void ov2640_JPEG_mode() {
+void ov2640_jpeg_mode() {
 	ov2640_send_command_table(ov2640_yuv422_reg_tbl, sizeof(ov2640_yuv422_reg_tbl));
 	ov2640_send_command_table(ov2640_jpeg_reg_tbl, sizeof(ov2640_jpeg_reg_tbl));
 }
 
-void ov2640_RGB565_mode() {
+void ov2640_rgb565_mode() {
 	ov2640_send_command_table(ov2640_rgb565_reg_tbl, sizeof(ov2640_rgb565_reg_tbl));
 }
 
@@ -527,7 +527,7 @@ void ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
 }
 
 void ov2640_rgb565_mode_initialize() {
-	ov2640_RGB565_mode();
+	ov2640_rgb565_mode();
 	ov2640_outsize_set(RGB565_COL_NUM, RGB565_ROW_NUM);
 	//ov2640_speed_set(15, 3);
 	ov2640_speed_set(1, 1);

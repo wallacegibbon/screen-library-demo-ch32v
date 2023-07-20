@@ -196,7 +196,7 @@ void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
 	ov2640_rgb565_mode_initialize();
 	delay_ms(100);
 
-	dma_lcd_initialize((uintptr_t) RGB565_dvp_dma_buffer0);
+	dma_lcd_initialize((uintptr_t) rgb565_dvp_dma_buffer0);
 	dvp_initialize();
 
 	while (1);
@@ -241,7 +241,7 @@ int main() {
 	//painter.drawing_board = (struct DrawingBoardInterface **) &screen2;
 	painter.drawing_board = (struct DrawingBoardInterface **) &screen3;
 
-	//USART_printf_initialize(115200);
+	//usart_printf_initialize(115200);
 	//printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
 	//camera_display(&painter, &screen3);
