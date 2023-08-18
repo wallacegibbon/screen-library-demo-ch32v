@@ -1,9 +1,9 @@
-#include "core_systick.h"
 #include "camera_ov2640.h"
 #include "ch32v30x.h"
+#include "core_systick.h"
+#include <assert.h>
 #include <stdint.h>
 #include <unistd.h>
-#include <assert.h>
 
 extern uint16_t camera_screen_width;
 extern uint16_t camera_screen_height;
@@ -26,6 +26,7 @@ uint8_t sccb_read_reg(uint8_t reg_addr);
 #define OV2640_PID 0X2642
 #define OV2640_SCCB_ID 0X60
 
+// clang-format off
 /// Start Camera list of initialization configuration registers
 static const uint8_t ov2640_init_reg_tbl[] = {
 	/// select DSP register bank
@@ -306,6 +307,7 @@ static const uint8_t ov2640_jpeg_reg_tbl[] = {
 	0xDA, 0x10,
 	0xE0, 0x00,
 };
+// clang-format on
 
 static void dvp_gpio_initialize() {
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -376,12 +378,12 @@ void sccb_gpio_initialize() {
 
 /// This function should be called after `camera_screen_width` got initialized.
 void dvp_initialize() {
-	NVIC_InitTypeDef NVIC_InitStructure = { 0 };
+	NVIC_InitTypeDef NVIC_InitStructure = {0};
 
-	//assert(camera_screen_width > 0);
-	//assert(camera_screen_height > 0);
-	//assert(camera_screen_width <= RGB565_COL_NUM);
-	//assert(camera_screen_height <= RGB565_ROW_NUM);
+	// assert(camera_screen_width > 0);
+	// assert(camera_screen_height > 0);
+	// assert(camera_screen_width <= RGB565_COL_NUM);
+	// assert(camera_screen_height <= RGB565_ROW_NUM);
 
 	dvp_gpio_initialize();
 
@@ -401,11 +403,11 @@ void dvp_initialize() {
 	/// DVP will be cropped to fit into the screen.
 	rgb565_dvp_dma_buffer0 = sbrk(camera_screen_width * 4);
 	rgb565_dvp_dma_buffer1 = sbrk(camera_screen_width * 4);
-	//assert(RGB565_dvp_dma_buffer0 > 0);
-	//assert(RGB565_dvp_dma_buffer1 > 0);
+	// assert(RGB565_dvp_dma_buffer0 > 0);
+	// assert(RGB565_dvp_dma_buffer1 > 0);
 
-	DVP->DMA_BUF0 = (uintptr_t) rgb565_dvp_dma_buffer0;
-	DVP->DMA_BUF1 = (uintptr_t) rgb565_dvp_dma_buffer1;
+	DVP->DMA_BUF0 = (uintptr_t)rgb565_dvp_dma_buffer0;
+	DVP->DMA_BUF1 = (uintptr_t)rgb565_dvp_dma_buffer1;
 
 	/// When Crop is enabled, COL_NUM and ROW_NUM will take no effect,
 	/// and CAPCNT and VLINE define the size.
@@ -529,7 +531,7 @@ void ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
 void ov2640_rgb565_mode_initialize() {
 	ov2640_rgb565_mode();
 	ov2640_outsize_set(RGB565_COL_NUM, RGB565_ROW_NUM);
-	//ov2640_speed_set(15, 3);
+	// ov2640_speed_set(15, 3);
 	ov2640_speed_set(1, 1);
 }
 
@@ -565,8 +567,10 @@ void sccb_no_ack() {
 int sccb_write_byte(uint8_t data) {
 	int i, t;
 	for (i = 0; i < 8; i++) {
-		if (data & 0x80) iic_sda_set();
-		else iic_sda_clr();
+		if (data & 0x80)
+			iic_sda_set();
+		else
+			iic_sda_clr();
 
 		data <<= 1;
 		delay_us(50);
@@ -644,4 +648,3 @@ uint8_t sccb_read_reg(uint8_t reg_addr) {
 
 	return r;
 }
-

@@ -11,4 +11,3 @@ void ov2640_rgb565_mode_initialize();
 void dvp_initialize();
 
 #endif
-

@@ -1,18 +1,18 @@
-#include "sc_st7789_ch32v_fsmc.h"
-#include "sc_st7789.h"
-#include "sc_ssd1306_ch32v_i2c.h"
 #include "sc_ssd1306.h"
+#include "sc_ssd1306_ch32v_i2c.h"
+#include "sc_st7789.h"
+#include "sc_st7789_ch32v_fsmc.h"
 //#include "sc_st7735_ch32v_spi.h"
-#include "sc_st7735.h"
-#include "sc_painter.h"
 #include "camera_ov2640.h"
-#include "sc_common.h"
-#include "sc_color.h"
-#include "core_systick.h"
-#include "ch32v_debug.h"
 #include "ch32v30x.h"
-#include <stdio.h>
+#include "ch32v_debug.h"
+#include "core_systick.h"
+#include "sc_color.h"
+#include "sc_common.h"
+#include "sc_painter.h"
+#include "sc_st7735.h"
 #include <math.h>
+#include <stdio.h>
 
 /// global variables that should be initialzed to the size of the target screen on startup. (before DVP initializing and DVP interrupts)
 uint16_t camera_screen_width;
@@ -42,7 +42,7 @@ void fancy_display(struct Painter *painter) {
 
 void initialize_screen_1(struct SSD1306_Screen *screen1, struct SSD1306_ScreenAdaptorCH32VI2C *adaptor1) {
 	ssd1306_adaptor_ch32v_i2c_initialize(adaptor1, 0x3C);
-	ssd1306_initialize(screen1, (struct SSD1306_ScreenAdaptorInterface **) adaptor1);
+	ssd1306_initialize(screen1, (struct SSD1306_ScreenAdaptorInterface **)adaptor1);
 	ssd1306_display_on(screen1);
 }
 
@@ -56,7 +56,7 @@ void initialize_screen_2(struct ST7735_Screen *screen2, struct ST7735_ScreenAdap
 void lcd_bg_pwm_initialize(uint16_t prescale, uint16_t period, uint16_t compare_value) {
 	TIM_TimeBaseInitTypeDef tim_base_init;
 	TIM_OCInitTypeDef tim_oc_init;
-	GPIO_InitTypeDef gpio_init = { 0 };
+	GPIO_InitTypeDef gpio_init = {0};
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_TIM1, ENABLE);
 
@@ -101,9 +101,9 @@ void lcd_bg_set_brightness(uint16_t brightness) {
 void initialize_screen_3(struct ST7789_Screen *screen3, struct ST7789_ScreenAdaptorCH32VFSMC *adaptor3) {
 	st7789_screen_ch32v_fsmc_initialize(adaptor3);
 
-	st7789_initialize(screen3, (struct ST7789_ScreenAdaptorInterface **) adaptor3);
+	st7789_initialize(screen3, (struct ST7789_ScreenAdaptorInterface **)adaptor3);
 
-	//GPIO_SetBits(GPIOB, GPIO_Pin_14);
+	// GPIO_SetBits(GPIOB, GPIO_Pin_14);
 
 	lcd_bg_pwm_initialize(144 - 1, 100, 50);
 	lcd_bg_set_brightness(20);
@@ -117,7 +117,7 @@ void graphic_play(struct Painter *painter) {
 
 	/// The default method do not flush, but some overridden `clear` method
 	/// do flush automatically.
-	//painter_flush(painter);
+	// painter_flush(painter);
 
 	painter_size(painter, &size);
 
@@ -177,16 +177,16 @@ void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
 	camera_screen_height = size.y;
 
 	painter_clear(painter, BLACK_16bit);
-	//painter_clear(painter, RED_16bit);
+	// painter_clear(painter, RED_16bit);
 
-	//point_initialize(&p1, 0, 0);
-	//point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1);
+	// point_initialize(&p1, 0, 0);
+	// point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1);
 
 	/// Make sure that `p2.y - p1.y == camera_screen_height - 1`, and `p1.y < 0`.
 	point_initialize(&p1, 0, -1);
 	point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1 - 1);
-	//point_initialize(&p1, 0, -10);
-	//point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1 - 10);
+	// point_initialize(&p1, 0, -10);
+	// point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1 - 10);
 	st7789_set_address(screen, p1, p2);
 
 	while (ov2640_initialize())
@@ -196,10 +196,11 @@ void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
 	ov2640_rgb565_mode_initialize();
 	delay_ms(100);
 
-	dma_lcd_initialize((uintptr_t) rgb565_dvp_dma_buffer0);
+	dma_lcd_initialize((uintptr_t)rgb565_dvp_dma_buffer0);
 	dvp_initialize();
 
-	while (1);
+	while (1)
+		;
 }
 
 void compass_display(struct Painter *painter) {
@@ -220,10 +221,10 @@ void compass_display(struct Painter *painter) {
 }
 
 int main() {
-	//struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
-	//struct SSD1306_Screen screen1;
-	//struct ST7735_ScreenAdaptorCH32VSPI adaptor2;
-	//struct ST7735_Screen screen2;
+	// struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
+	// struct SSD1306_Screen screen1;
+	// struct ST7735_ScreenAdaptorCH32VSPI adaptor2;
+	// struct ST7735_Screen screen2;
 	struct ST7789_ScreenAdaptorCH32VFSMC adaptor3;
 	struct ST7789_Screen screen3;
 	struct Painter painter;
@@ -231,23 +232,22 @@ int main() {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	initialize_systick_interrupt();
 
-	//initialize_screen_1(&screen1, &adaptor1);
-	//initialize_screen_2(&screen2, &adaptor2);
+	// initialize_screen_1(&screen1, &adaptor1);
+	// initialize_screen_2(&screen2, &adaptor2);
 	initialize_screen_3(&screen3, &adaptor3);
 
-	//SSD1306_Screen_set_up_down_invert(&screen1);
+	// SSD1306_Screen_set_up_down_invert(&screen1);
 
-	//painter.drawing_board = (struct DrawingBoardInterface **) &screen1;
-	//painter.drawing_board = (struct DrawingBoardInterface **) &screen2;
-	painter.drawing_board = (struct DrawingBoardInterface **) &screen3;
+	// painter.drawing_board = (struct DrawingBoardInterface **) &screen1;
+	// painter.drawing_board = (struct DrawingBoardInterface **) &screen2;
+	painter.drawing_board = (struct DrawingBoardInterface **)&screen3;
 
 	usart_printf_initialize(115200);
 	printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
-	//camera_display(&painter, &screen3);
-	//graphic_play(&painter);
+	// camera_display(&painter, &screen3);
+	// graphic_play(&painter);
 	compass_display(&painter);
 
 	return 0;
 }
-
