@@ -115,8 +115,7 @@ void graphic_play(struct Painter *painter) {
 
 	painter_clear(painter, BLACK_16bit);
 
-	/// The default method do not flush, but some overridden `clear` method
-	/// do flush automatically.
+	/// The default method do not flush, but some overridden `clear` method do flush automatically.
 	// painter_flush(painter);
 
 	painter_size(painter, &size);
@@ -246,8 +245,8 @@ int main() {
 	printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
 	// camera_display(&painter, &screen3);
-	// graphic_play(&painter);
-	compass_display(&painter);
+	graphic_play(&painter);
+	// compass_display(&painter);
 
 	return 0;
 }
