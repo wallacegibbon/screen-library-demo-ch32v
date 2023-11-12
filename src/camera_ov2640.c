@@ -602,7 +602,8 @@ uint8_t sccb_read_byte() {
 		iic_scl_set();
 
 		t <<= 1;
-		if (iic_sda_read()) t |= 1;
+		if (iic_sda_read())
+			t |= 1;
 
 		delay_us(50);
 		iic_scl_clr();
@@ -616,13 +617,16 @@ int sccb_write_reg(uint8_t reg_addr, uint8_t reg_data) {
 	int r = 0;
 	sccb_start();
 
-	if (sccb_write_byte(OV2640_SCCB_ID)) r = 1;
+	if (sccb_write_byte(OV2640_SCCB_ID))
+		r = 1;
 	delay_us(100);
 
-	if (sccb_write_byte(reg_addr)) r = 1;
+	if (sccb_write_byte(reg_addr))
+		r = 1;
 	delay_us(100);
 
-	if (sccb_write_byte(reg_data)) r = 1;
+	if (sccb_write_byte(reg_data))
+		r = 1;
 	delay_us(100);
 
 	sccb_stop();

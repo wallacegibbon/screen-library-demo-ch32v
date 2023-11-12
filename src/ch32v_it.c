@@ -62,11 +62,16 @@ void dvp_fifo_ov_handler() {
 }
 
 __attribute__((interrupt("WCH-Interrupt-fast"))) void DVP_IRQHandler() {
-	if (DVP->IFR & RB_DVP_IF_ROW_DONE) dvp_row_done_handler();
-	if (DVP->IFR & RB_DVP_IF_FRM_DONE) dvp_frm_done_handler();
-	if (DVP->IFR & RB_DVP_IF_STR_FRM) dvp_str_frm_handler();
-	if (DVP->IFR & RB_DVP_IF_STP_FRM) dvp_stp_frm_handler();
-	if (DVP->IFR & RB_DVP_IF_FIFO_OV) dvp_fifo_ov_handler();
+	if (DVP->IFR & RB_DVP_IF_ROW_DONE)
+		dvp_row_done_handler();
+	if (DVP->IFR & RB_DVP_IF_FRM_DONE)
+		dvp_frm_done_handler();
+	if (DVP->IFR & RB_DVP_IF_STR_FRM)
+		dvp_str_frm_handler();
+	if (DVP->IFR & RB_DVP_IF_STP_FRM)
+		dvp_stp_frm_handler();
+	if (DVP->IFR & RB_DVP_IF_FIFO_OV)
+		dvp_fifo_ov_handler();
 }
 
 __attribute__((interrupt("WCH-Interrupt-fast"))) void NMI_Handler() {
