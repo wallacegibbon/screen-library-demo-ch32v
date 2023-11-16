@@ -310,31 +310,31 @@ static const uint8_t ov2640_jpeg_reg_tbl[] = {
 // clang-format on
 
 static void dvp_gpio_initialize() {
-	GPIO_InitTypeDef GPIO_InitStructure;
+	GPIO_InitTypeDef gpio_init;
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD, ENABLE);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	gpio_init.GPIO_Pin = GPIO_Pin_7;
+	gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
+	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &gpio_init);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	gpio_init.GPIO_Pin = GPIO_Pin_7;
+	gpio_init.GPIO_Mode = GPIO_Mode_Out_PP;
+	gpio_init.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOC, &gpio_init);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_9 | GPIO_Pin_10;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	gpio_init.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_9 | GPIO_Pin_10;
+	gpio_init.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_Init(GPIOA, &gpio_init);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	gpio_init.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11;
+	gpio_init.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_Init(GPIOB, &gpio_init);
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	gpio_init.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;
+	gpio_init.GPIO_Mode = GPIO_Mode_IPU;
+	GPIO_Init(GPIOC, &gpio_init);
 }
 
 static inline void ov_reset_set() { GPIOB->BSHR = GPIO_Pin_7; }
@@ -347,7 +347,9 @@ static inline void iic_sda_clr() { GPIOB->BCR = GPIO_Pin_11; }
 static inline void iic_scl_set() { GPIOB->BSHR = GPIO_Pin_10; }
 static inline void iic_scl_clr() { GPIOB->BCR = GPIO_Pin_10; }
 
-static inline int iic_sda_read() { return GPIOB->INDR & GPIO_Pin_11; }
+static inline int iic_sda_read() {
+	return GPIOB->INDR & GPIO_Pin_11;
+}
 
 static inline void iic_scl_in() {
 	GPIOB->CFGHR &= 0XFFFFF0FF;
@@ -378,7 +380,7 @@ void sccb_gpio_initialize() {
 
 /// This function should be called after `camera_screen_width` got initialized.
 void dvp_initialize() {
-	NVIC_InitTypeDef NVIC_InitStructure = {0};
+	NVIC_InitTypeDef nvic_init = {0};
 
 	// assert(camera_screen_width > 0);
 	// assert(camera_screen_height > 0);
@@ -433,11 +435,11 @@ void dvp_initialize() {
 	DVP->IER |= RB_DVP_IE_ROW_DONE;
 	DVP->IER |= RB_DVP_IE_STR_FRM;
 
-	NVIC_InitStructure.NVIC_IRQChannel = DVP_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+	nvic_init.NVIC_IRQChannel = DVP_IRQn;
+	nvic_init.NVIC_IRQChannelPreemptionPriority = 1;
+	nvic_init.NVIC_IRQChannelSubPriority = 0;
+	nvic_init.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&nvic_init);
 
 	DVP->CR1 |= RB_DVP_DMA_EN;
 	DVP->CR0 |= RB_DVP_ENABLE;

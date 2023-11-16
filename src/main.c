@@ -18,10 +18,10 @@
 uint16_t camera_screen_width;
 uint16_t camera_screen_height;
 
-void fancy_display(struct Painter *painter) {
+void fancy_display(struct painter *painter) {
 	static int current_cnt = 0, step = 1;
-	struct Point p;
-	struct Point size;
+	struct point p;
+	struct point size;
 	int color, i;
 
 	painter_size(painter, &size);
@@ -40,16 +40,16 @@ void fancy_display(struct Painter *painter) {
 	current_cnt += step;
 }
 
-void initialize_screen_1(struct SSD1306_Screen *screen1, struct SSD1306_ScreenAdaptorCH32VI2C *adaptor1) {
+void initialize_screen_1(struct ssd1306_screen *screen1, struct ssd1306_adaptor_ch32v_i2c *adaptor1) {
 	ssd1306_adaptor_ch32v_i2c_initialize(adaptor1, 0x3C);
-	ssd1306_initialize(screen1, (struct SSD1306_ScreenAdaptorInterface **)adaptor1);
+	ssd1306_initialize(screen1, (struct ssd1306_adaptor_i **)adaptor1);
 	ssd1306_display_on(screen1);
 }
 
 /*
-void initialize_screen_2(struct ST7735_Screen *screen2, struct ST7735_ScreenAdaptorCH32VSPI *adaptor2) {
+void initialize_screen_2(struct st7735_screen *screen2, struct st7735_adaptor_ch32v_spi *adaptor2) {
 	st7735_adaptor_ch32v_spi_initialize(adaptor2, ...);
-	st7735_ainitialize(screen2, (struct ST7735_ScreenAdaptorInterface **) adaptor2);
+	st7735_initialize(screen2, (struct st7735_adaptor_i **) adaptor2);
 }
 */
 
@@ -98,10 +98,10 @@ void lcd_bg_set_brightness(uint16_t brightness) {
 	TIM1->CH2CVR = brightness;
 }
 
-void initialize_screen_3(struct ST7789_Screen *screen3, struct ST7789_ScreenAdaptorCH32VFSMC *adaptor3) {
-	st7789_screen_ch32v_fsmc_initialize(adaptor3);
+void initialize_screen_3(struct st7789_screen *screen3, struct st7789_adaptor_ch32v_fsmc *adaptor3) {
+	st7789_adaptor_ch32v_fsmc_initialize(adaptor3);
 
-	st7789_initialize(screen3, (struct ST7789_ScreenAdaptorInterface **)adaptor3);
+	st7789_initialize(screen3, (struct st7789_adaptor_i **)adaptor3);
 
 	// GPIO_SetBits(GPIOB, GPIO_Pin_14);
 
@@ -109,9 +109,9 @@ void initialize_screen_3(struct ST7789_Screen *screen3, struct ST7789_ScreenAdap
 	lcd_bg_set_brightness(20);
 }
 
-void graphic_play(struct Painter *painter) {
-	struct Point p1, p2, size;
-	struct ColorPair color_pair;
+void graphic_play(struct painter *painter) {
+	struct point p1, p2, size;
+	struct color_pair color_fb;
 
 	painter_clear(painter, BLACK_16bit);
 
@@ -127,12 +127,12 @@ void graphic_play(struct Painter *painter) {
 	point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
 	painter_draw_circle(painter, p1, 5, RED_16bit);
 
-	color_pair_initialize(&color_pair, RED_16bit, BLACK_16bit);
+	color_pair_initialize(&color_fb, RED_16bit, BLACK_16bit);
 	point_initialize(&p1, 0, 0);
-	painter_draw_string(painter, "WX, CHITU !", p1, 32, color_pair);
+	painter_draw_string(painter, "WX, CHITU !", p1, 32, color_fb);
 
 	point_initialize(&p1, 0, 32);
-	painter_draw_string(painter, "WX, CHITU !", p1, 16, color_pair);
+	painter_draw_string(painter, "WX, CHITU !", p1, 16, color_fb);
 
 	/*
 	point_initialize(&p1, 0, 0);
@@ -167,8 +167,8 @@ void dma_lcd_initialize(uintptr_t periph_address) {
 	DMA_Init(DMA2_Channel5, &dma_init);
 }
 
-void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
-	struct Point p1, p2, size;
+void camera_display(struct painter *painter, struct st7789_screen *screen) {
+	struct point p1, p2, size;
 
 	painter_size(painter, &size);
 	/// initialize global variables that represent the size of the screen.
@@ -202,8 +202,8 @@ void camera_display(struct Painter *painter, struct ST7789_Screen *screen) {
 		;
 }
 
-void compass_display(struct Painter *painter) {
-	struct Point p1, p2, size, center;
+void compass_display(struct painter *painter) {
+	struct point p1, p2, size, center;
 	int r = 50;
 	float theta = 45.0 / 180.0 * M_PI;
 
@@ -220,26 +220,26 @@ void compass_display(struct Painter *painter) {
 }
 
 int main() {
-	// struct SSD1306_ScreenAdaptorCH32VI2C adaptor1;
-	// struct SSD1306_Screen screen1;
-	// struct ST7735_ScreenAdaptorCH32VSPI adaptor2;
-	// struct ST7735_Screen screen2;
-	struct ST7789_ScreenAdaptorCH32VFSMC adaptor3;
-	struct ST7789_Screen screen3;
-	struct Painter painter;
+	struct ssd1306_adaptor_ch32v_i2c adaptor1;
+	struct ssd1306_screen screen1;
+	// struct st7735_adaptor_ch32v_spi adaptor2;
+	// struct st7735_screen screen2;
+	struct st7789_adaptor_ch32v_fsmc adaptor3;
+	struct st7789_screen screen3;
+	struct painter painter;
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	initialize_systick_interrupt();
 
-	// initialize_screen_1(&screen1, &adaptor1);
+	initialize_screen_1(&screen1, &adaptor1);
 	// initialize_screen_2(&screen2, &adaptor2);
 	initialize_screen_3(&screen3, &adaptor3);
 
 	// SSD1306_Screen_set_up_down_invert(&screen1);
 
-	// painter.drawing_board = (struct DrawingBoardInterface **) &screen1;
-	// painter.drawing_board = (struct DrawingBoardInterface **) &screen2;
-	painter.drawing_board = (struct DrawingBoardInterface **)&screen3;
+	// painter.drawing_board = (struct drawing_i **)&screen1;
+	// painter.drawing_board = (struct drawing_i **) &screen2;
+	painter.drawing_board = (struct drawing_i **)&screen3;
 
 	usart_printf_initialize(115200);
 	printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
