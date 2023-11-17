@@ -49,7 +49,7 @@ void initialize_screen_1(struct ssd1306_screen *screen1, struct ssd1306_adaptor_
 /*
 void initialize_screen_2(struct st7735_screen *screen2, struct st7735_adaptor_ch32v_spi *adaptor2) {
 	st7735_adaptor_ch32v_spi_initialize(adaptor2, ...);
-	st7735_initialize(screen2, (const struct st7735_adaptor_i **) adaptor2);
+	st7735_initialize(screen2, (const struct st7735_adaptor_i **)adaptor2);
 }
 */
 
@@ -238,7 +238,7 @@ int main() {
 	// SSD1306_Screen_set_up_down_invert(&screen1);
 
 	// painter.drawing_board = (const struct drawing_i **)&screen1;
-	// painter.drawing_board = (const struct drawing_i **) &screen2;
+	// painter.drawing_board = (const struct drawing_i **)&screen2;
 	painter.drawing_board = (const struct drawing_i **)&screen3;
 
 	usart_printf_initialize(115200);
