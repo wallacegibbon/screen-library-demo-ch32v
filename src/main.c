@@ -231,7 +231,7 @@ int main() {
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	initialize_systick_interrupt();
 
-	initialize_screen_1(&screen1, &adaptor1);
+	// initialize_screen_1(&screen1, &adaptor1);
 	// initialize_screen_2(&screen2, &adaptor2);
 	initialize_screen_3(&screen3, &adaptor3);
 
