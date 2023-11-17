@@ -42,14 +42,14 @@ void fancy_display(struct painter *painter) {
 
 void initialize_screen_1(struct ssd1306_screen *screen1, struct ssd1306_adaptor_ch32v_i2c *adaptor1) {
 	ssd1306_adaptor_ch32v_i2c_initialize(adaptor1, 0x3C);
-	ssd1306_initialize(screen1, (struct ssd1306_adaptor_i **)adaptor1);
+	ssd1306_initialize(screen1, (const struct ssd1306_adaptor_i **)adaptor1);
 	ssd1306_display_on(screen1);
 }
 
 /*
 void initialize_screen_2(struct st7735_screen *screen2, struct st7735_adaptor_ch32v_spi *adaptor2) {
 	st7735_adaptor_ch32v_spi_initialize(adaptor2, ...);
-	st7735_initialize(screen2, (struct st7735_adaptor_i **) adaptor2);
+	st7735_initialize(screen2, (const struct st7735_adaptor_i **) adaptor2);
 }
 */
 
@@ -101,7 +101,7 @@ void lcd_bg_set_brightness(uint16_t brightness) {
 void initialize_screen_3(struct st7789_screen *screen3, struct st7789_adaptor_ch32v_fsmc *adaptor3) {
 	st7789_adaptor_ch32v_fsmc_initialize(adaptor3);
 
-	st7789_initialize(screen3, (struct st7789_adaptor_i **)adaptor3);
+	st7789_initialize(screen3, (const struct st7789_adaptor_i **)adaptor3);
 
 	// GPIO_SetBits(GPIOB, GPIO_Pin_14);
 
@@ -237,9 +237,9 @@ int main() {
 
 	// SSD1306_Screen_set_up_down_invert(&screen1);
 
-	// painter.drawing_board = (struct drawing_i **)&screen1;
-	// painter.drawing_board = (struct drawing_i **) &screen2;
-	painter.drawing_board = (struct drawing_i **)&screen3;
+	// painter.drawing_board = (const struct drawing_i **)&screen1;
+	// painter.drawing_board = (const struct drawing_i **) &screen2;
+	painter.drawing_board = (const struct drawing_i **)&screen3;
 
 	usart_printf_initialize(115200);
 	printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
