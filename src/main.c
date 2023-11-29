@@ -112,10 +112,11 @@ void initialize_screen_3(struct st7789_screen *screen3, struct st7789_adaptor_ch
 void graphic_play(struct painter *painter) {
 	struct point p1, p2, size;
 	struct color_pair color_fb;
+	struct text_painter text_painter;
 
 	painter_clear(painter, BLACK_16bit);
 
-	/// The default method do not flush, but some overridden `clear` method do flush automatically.
+	/// The default method do not flush, but overridden `clear` can do flush automatically.
 	// painter_flush(painter);
 
 	painter_size(painter, &size);
@@ -127,12 +128,18 @@ void graphic_play(struct painter *painter) {
 	point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
 	painter_draw_circle(painter, p1, 5, RED_16bit);
 
-	color_pair_initialize(&color_fb, RED_16bit, BLACK_16bit);
-	point_initialize(&p1, 0, 0);
-	painter_draw_string(painter, "WX, CHITU !", p1, 32, color_fb);
+	/// text drawing
+	text_painter_initialize(&text_painter, painter);
 
-	point_initialize(&p1, 0, 32);
-	painter_draw_string(painter, "WX, CHITU !", p1, 16, color_fb);
+	color_pair_initialize(&text_painter.color, RED_16bit, BLACK_16bit);
+	point_initialize(&text_painter.pos, 0, 0);
+
+	text_draw_string(&text_painter, "Hello, chitu !", 32);
+
+	color_pair_initialize(&text_painter.color, CYAN_16bit, BLACK_16bit);
+	point_initialize(&text_painter.pos, 0, 32);
+
+	text_draw_string(&text_painter, "Hello, chitu !", 16);
 
 	/*
 	point_initialize(&p1, 0, 0);
