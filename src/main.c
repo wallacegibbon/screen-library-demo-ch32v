@@ -134,18 +134,16 @@ void graphic_play(struct painter *painter) {
 	color_pair_initialize(&text_painter.color, RED_16bit, BLACK_16bit);
 	point_initialize(&text_painter.pos, 0, 0);
 
-	text_draw_string(&text_painter, "Hello, chitu !", 32);
+	text_draw_string(&text_painter, "1.5 Programming!", 32);
 
 	color_pair_initialize(&text_painter.color, CYAN_16bit, BLACK_16bit);
 	point_initialize(&text_painter.pos, 0, 32);
 
-	text_draw_string(&text_painter, "Hello, chitu !", 16);
+	text_draw_string(&text_painter, "1.5 Programming!", 16);
 
-	/*
-	point_initialize(&p1, 0, 0);
-	point_initialize(&p2, 20, 50);
+	point_initialize(&p1, 10, size.y / 2 - 20);
+	point_initialize(&p2, 10, size.y / 2 + 20);
 	painter_draw_line(painter, p1, p2, WHITE_16bit);
-	*/
 
 	painter_flush(painter);
 
