@@ -22,7 +22,8 @@ void fancy_display(struct painter *painter) {
 	static int current_cnt = 0, step = 1;
 	struct point p;
 	struct point size;
-	int color, i;
+	uint32_t color;
+	int i;
 
 	painter_size(painter, &size);
 	point_initialize(&p, size.x / 2, size.y / 2);
