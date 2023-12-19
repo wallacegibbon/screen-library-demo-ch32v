@@ -112,22 +112,12 @@ void initialize_screen_3(struct st7789_screen *screen, struct st7789_adaptor_ch3
 
 void graphic_play(struct painter *painter) {
 	struct point p1, p2, size;
-	struct color_pair color_fb;
 	struct text_painter text_painter;
 
 	painter_clear(painter, BLACK_16bit);
 
 	/// The default method do not flush, but overridden `clear` can do flush automatically.
 	// painter_flush(painter);
-
-	painter_size(painter, &size);
-
-	point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
-	point_initialize(&p2, size.x / 2 + 50, size.y / 2 + 20);
-	painter_draw_rectangle(painter, p1, p2, BLUE_16bit);
-
-	point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
-	painter_draw_circle(painter, p1, 5, RED_16bit);
 
 	/// text drawing
 	text_painter_initialize(&text_painter, painter);
@@ -141,6 +131,15 @@ void graphic_play(struct painter *painter) {
 	point_initialize(&text_painter.pos, 0, 32);
 
 	text_draw_string(&text_painter, "1.5 Programming!", 16);
+
+	painter_size(painter, &size);
+
+	point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
+	point_initialize(&p2, size.x / 2 + 50, size.y / 2 + 20);
+	painter_draw_rectangle(painter, p1, p2, BLUE_16bit);
+
+	point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
+	painter_draw_circle(painter, p1, 5, RED_16bit);
 
 	point_initialize(&p1, 10, size.y / 2 - 20);
 	point_initialize(&p2, 10, size.y / 2 + 20);
