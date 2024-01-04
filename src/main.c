@@ -145,11 +145,11 @@ void graphic_play(struct painter *painter) {
 	point_initialize(&p2, 10, size.y / 2 + 20);
 	painter_draw_line(painter, p1, p2, WHITE_24bit);
 
-	point_initialize(&p1, 10, 20);
-	point_initialize(&p2, 10, size.y - 20);
-	point_initialize(&p3, size.x - 10, 10);
+	point_initialize(&p1, 60, 60);
+	point_initialize(&p2, 10, size.y - 60);
+	point_initialize(&p3, size.x, -60);
 
-	painter_draw_bezier(painter, p1, p2, p3, RED_24bit, 0);
+	painter_draw_bezier(painter, p1, p2, p3, BLUE_24bit);
 
 	painter_flush(painter);
 

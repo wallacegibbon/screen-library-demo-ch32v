@@ -28,6 +28,8 @@ CROSS_C_FLAGS += -fno-common -fno-builtin -Os
 CROSS_C_FLAGS += -DCHIP_CH32V30X
 #CROSS_C_FLAGS += -DCHIP_CH32V20X
 
+#CROSS_C_FLAGS += -DBEZIER_DEBUG
+
 CROSS_LD_FLAGS += -Wl,--no-relax -specs=nosys.specs -specs=nano.specs -nostartfiles \
 -T$(CH32_STD_LIB_DIR)/sample/default.ld
 
