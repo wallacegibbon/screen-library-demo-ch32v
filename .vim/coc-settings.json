@@ -1,0 +1,8 @@
+/// vim: ft=jsonc :
+
+{
+	"clangd.arguments": [
+		"--query-driver=C:/MounRiver/MounRiver_Studio/toolchain/RISC-V Embedded GCC/bin/riscv-none-embed*"
+		//"--query-driver=/home/wallace/MRS_Toolchain_Linux_x64_V1.80/RISC-V Embedded GCC/bin/riscv-none-embed*"
+	]
+}
