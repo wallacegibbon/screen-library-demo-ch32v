@@ -309,7 +309,7 @@ static const uint8_t ov2640_jpeg_reg_tbl[] = {
 };
 // clang-format on
 
-static void dvp_gpio_initialize() {
+static void dvp_gpio_init() {
 	GPIO_InitTypeDef gpio_init;
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD, ENABLE);
@@ -371,7 +371,7 @@ static inline void iic_sda_out() {
 	GPIOB->CFGHR |= 3 << 12;
 }
 
-void sccb_gpio_initialize() {
+void sccb_gpio_init() {
 	iic_scl_out();
 	iic_sda_out();
 	iic_scl_set();
@@ -379,7 +379,7 @@ void sccb_gpio_initialize() {
 }
 
 /// This function should be called after `camera_screen_width` got initialized.
-void dvp_initialize() {
+void dvp_init() {
 	NVIC_InitTypeDef nvic_init = {0};
 
 	// assert(camera_screen_width > 0);
@@ -387,7 +387,7 @@ void dvp_initialize() {
 	// assert(camera_screen_width <= RGB565_COL_NUM);
 	// assert(camera_screen_height <= RGB565_ROW_NUM);
 
-	dvp_gpio_initialize();
+	dvp_gpio_init();
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DVP, ENABLE);
 
@@ -451,10 +451,10 @@ void ov2640_send_command_table(const uint8_t *cmd_tbl, int size) {
 		sccb_write_reg(cmd_tbl[i * 2], cmd_tbl[i * 2 + 1]);
 }
 
-int ov2640_initialize() {
+int ov2640_init() {
 	int reg;
 
-	sccb_gpio_initialize();
+	sccb_gpio_init();
 
 	ov_pwdn_clr();
 	delay_ms(10);
@@ -530,7 +530,7 @@ void ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
 	sccb_write_reg(0x11, xclk_div);
 }
 
-void ov2640_rgb565_mode_initialize() {
+void ov2640_rgb565_mode_init() {
 	ov2640_rgb565_mode();
 	ov2640_outsize_set(RGB565_COL_NUM, RGB565_ROW_NUM);
 	// ov2640_speed_set(15, 3);

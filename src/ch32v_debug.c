@@ -1,7 +1,7 @@
 #include <ch32v30x.h>
 #include <ch32v_debug.h>
 
-void usart_printf_initialize(uint32_t baudrate) {
+void usart_printf_init(uint32_t baudrate) {
 	GPIO_InitTypeDef gpio_init;
 	USART_InitTypeDef usart_init;
 

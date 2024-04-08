@@ -26,7 +26,7 @@ void fancy_display(struct painter *painter) {
 	int i;
 
 	painter_size(painter, &size);
-	point_initialize(&p, size.x / 2, size.y / 2);
+	point_init(&p, size.x / 2, size.y / 2);
 	for (i = 0; i < 31; i++) {
 		color = (ABS(current_cnt - i) < 3) ? BLACK_24bit : CYAN_24bit;
 		painter_draw_circle(painter, p, i, color);
@@ -41,20 +41,20 @@ void fancy_display(struct painter *painter) {
 	current_cnt += step;
 }
 
-void initialize_screen_1(struct ssd1306_screen *screen, struct ssd1306_adaptor_ch32v_i2c *adaptor) {
-	ssd1306_adaptor_ch32v_i2c_initialize(adaptor, 0x3C);
-	ssd1306_initialize(screen, (struct ssd1306_adaptor_i **)adaptor);
+void screen_1_init(struct ssd1306_screen *screen, struct ssd1306_adaptor_ch32v_i2c *adaptor) {
+	ssd1306_adaptor_ch32v_i2c_init(adaptor, 0x3C);
+	ssd1306_init(screen, (struct ssd1306_adaptor_i **)adaptor);
 	ssd1306_display_on(screen);
 }
 
 /*
-void initialize_screen_2(struct st7735_screen *screen, struct st7735_adaptor_ch32v_spi *adaptor) {
-	st7735_adaptor_ch32v_spi_initialize(adaptor, ...);
-	st7735_initialize(screen, (struct st7735_adaptor_i **)adaptor);
+void screen_2_init(struct st7735_screen *screen, struct st7735_adaptor_ch32v_spi *adaptor) {
+	st7735_adaptor_ch32v_spi_init(adaptor, ...);
+	st7735_init(screen, (struct st7735_adaptor_i **)adaptor);
 }
 */
 
-void lcd_bg_pwm_initialize(uint16_t prescale, uint16_t period, uint16_t compare_value) {
+void lcd_bg_pwm_init(uint16_t prescale, uint16_t period, uint16_t compare_value) {
 	TIM_TimeBaseInitTypeDef tim_base_init;
 	TIM_OCInitTypeDef tim_oc_init;
 	GPIO_InitTypeDef gpio_init = {0};
@@ -99,14 +99,14 @@ void lcd_bg_set_brightness(uint16_t brightness) {
 	TIM1->CH2CVR = brightness;
 }
 
-void initialize_screen_3(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc *adaptor) {
-	st7789_adaptor_ch32v_fsmc_initialize(adaptor);
+void screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc *adaptor) {
+	st7789_adaptor_ch32v_fsmc_init(adaptor);
 
-	st7789_initialize(screen, (struct st7789_adaptor_i **)adaptor);
+	st7789_init(screen, (struct st7789_adaptor_i **)adaptor);
 
 	// GPIO_SetBits(GPIOB, GPIO_Pin_14);
 
-	lcd_bg_pwm_initialize(144 - 1, 100, 50);
+	lcd_bg_pwm_init(144 - 1, 100, 50);
 	lcd_bg_set_brightness(20);
 }
 
@@ -120,34 +120,34 @@ void graphic_play(struct painter *painter) {
 	// painter_flush(painter);
 
 	/// text drawing
-	text_painter_initialize(&text_painter, painter);
+	text_painter_init(&text_painter, painter);
 
-	color_pair_initialize(&text_painter.color, RED_24bit, BLACK_24bit);
-	point_initialize(&text_painter.pos, 0, 0);
+	color_pair_init(&text_painter.color, RED_24bit, BLACK_24bit);
+	point_init(&text_painter.pos, 0, 0);
 
 	text_draw_string(&text_painter, "1.5 Programming!", 32);
 
-	color_pair_initialize(&text_painter.color, GREEN_24bit, BLACK_24bit);
-	point_initialize(&text_painter.pos, 0, 32);
+	color_pair_init(&text_painter.color, GREEN_24bit, BLACK_24bit);
+	point_init(&text_painter.pos, 0, 32);
 
 	text_draw_string(&text_painter, "1.5 Programming!", 16);
 
 	painter_size(painter, &size);
 
-	point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
-	point_initialize(&p2, size.x / 2 + 50, size.y / 2 + 20);
+	point_init(&p1, size.x / 2 - 50, size.y / 2 - 20);
+	point_init(&p2, size.x / 2 + 50, size.y / 2 + 20);
 	painter_draw_rectangle(painter, p1, p2, YELLOW_24bit);
 
-	point_initialize(&p1, size.x / 2 - 50, size.y / 2 - 20);
+	point_init(&p1, size.x / 2 - 50, size.y / 2 - 20);
 	painter_draw_circle(painter, p1, 5, MAGENTA_24bit);
 
-	point_initialize(&p1, 10, size.y / 2 - 20);
-	point_initialize(&p2, 10, size.y / 2 + 20);
+	point_init(&p1, 10, size.y / 2 - 20);
+	point_init(&p2, 10, size.y / 2 + 20);
 	painter_draw_line(painter, p1, p2, WHITE_24bit);
 
-	point_initialize(&p1, 60, 60);
-	point_initialize(&p2, 10, size.y - 60);
-	point_initialize(&p3, size.x, -60);
+	point_init(&p1, 60, 60);
+	point_init(&p2, 10, size.y - 60);
+	point_init(&p3, size.x, -60);
 
 	painter_draw_bezier(painter, p1, p2, p3, BLUE_24bit);
 
@@ -157,7 +157,7 @@ void graphic_play(struct painter *painter) {
 		fancy_display(painter);
 }
 
-void dma_lcd_initialize(uintptr_t periph_address) {
+void dma_lcd_init(uintptr_t periph_address) {
 	DMA_InitTypeDef dma_init;
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
@@ -189,25 +189,25 @@ void camera_display(struct painter *painter, struct st7789_screen *screen) {
 	painter_clear(painter, BLACK_24bit);
 	// painter_clear(painter, RED_24bit);
 
-	// point_initialize(&p1, 0, 0);
-	// point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1);
+	// point_init(&p1, 0, 0);
+	// point_init(&p2, camera_screen_width - 1, camera_screen_height - 1);
 
 	/// Make sure that `p2.y - p1.y == camera_screen_height - 1`, and `p1.y < 0`.
-	point_initialize(&p1, 0, -1);
-	point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1 - 1);
-	// point_initialize(&p1, 0, -10);
-	// point_initialize(&p2, camera_screen_width - 1, camera_screen_height - 1 - 10);
+	point_init(&p1, 0, -1);
+	point_init(&p2, camera_screen_width - 1, camera_screen_height - 1 - 1);
+	// point_init(&p1, 0, -10);
+	// point_init(&p2, camera_screen_width - 1, camera_screen_height - 1 - 10);
 	st7789_set_address(screen, p1, p2);
 
-	while (ov2640_initialize())
+	while (ov2640_init())
 		delay_ms(500);
 
 	delay_ms(100);
-	ov2640_rgb565_mode_initialize();
+	ov2640_rgb565_mode_init();
 	delay_ms(100);
 
-	dma_lcd_initialize((uintptr_t)rgb565_dvp_dma_buffer0);
-	dvp_initialize();
+	dma_lcd_init((uintptr_t)rgb565_dvp_dma_buffer0);
+	dvp_init();
 
 	while (1)
 		;
@@ -224,9 +224,9 @@ void compass_display(struct painter *painter) {
 	center.x = size.x / 2;
 	center.y = size.y / 2;
 
-	point_initialize(&p1, center.x + r * cos(theta), center.y - r * sin(theta));
+	point_init(&p1, center.x + r * cos(theta), center.y - r * sin(theta));
 	painter_draw_line(painter, p1, center, RED_24bit);
-	point_initialize(&p1, center.x - r * cos(theta), center.y + r * sin(theta));
+	point_init(&p1, center.x - r * cos(theta), center.y + r * sin(theta));
 	painter_draw_line(painter, p1, center, BLUE_24bit);
 }
 
@@ -240,11 +240,11 @@ int main() {
 	struct painter painter;
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-	initialize_systick_interrupt();
+	systick_interrupt_init();
 
-	// initialize_screen_1(&screen1, &adaptor1);
-	// initialize_screen_2(&screen2, &adaptor2);
-	initialize_screen_3(&screen3, &adaptor3);
+	// screen_1_init(&screen1, &adaptor1);
+	// screen_2_init(&screen2, &adaptor2);
+	screen_3_init(&screen3, &adaptor3);
 
 	// SSD1306_Screen_set_up_down_invert(&screen1);
 
@@ -252,7 +252,7 @@ int main() {
 	// painter.drawing_board = (struct drawing_i **)&screen2;
 	painter.drawing_board = (struct drawing_i **)&screen3;
 
-	usart_printf_initialize(115200);
+	usart_printf_init(115200);
 	printf("System is ready now. SystemClk: %d\r\n", SystemCoreClock);
 
 	// camera_display(&painter, &screen3);
