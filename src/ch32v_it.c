@@ -1,6 +1,9 @@
 #include "camera_ov2640.h"
 #include "ch32v30x.h"
-#include <assert.h>
+
+void DVP_IRQHandler() __attribute__((interrupt("WCH-Interrupt-fast")));
+void NMI_Handler() __attribute__((interrupt("WCH-Interrupt-fast")));
+void HardFault_Handler() __attribute__((interrupt("WCH-Interrupt-fast")));
 
 static volatile uint32_t frame_cnt = 0;
 static volatile uint32_t addr_cnt = 0;
@@ -61,7 +64,7 @@ void dvp_fifo_ov_handler() {
 		;
 }
 
-__attribute__((interrupt("WCH-Interrupt-fast"))) void DVP_IRQHandler() {
+void DVP_IRQHandler() {
 	if (DVP->IFR & RB_DVP_IF_ROW_DONE)
 		dvp_row_done_handler();
 	if (DVP->IFR & RB_DVP_IF_FRM_DONE)
@@ -74,5 +77,8 @@ __attribute__((interrupt("WCH-Interrupt-fast"))) void DVP_IRQHandler() {
 		dvp_fifo_ov_handler();
 }
 
-__attribute__((interrupt("WCH-Interrupt-fast"))) void NMI_Handler() {
+void NMI_Handler() {
+}
+
+void HardFault_Handler() {
 }
