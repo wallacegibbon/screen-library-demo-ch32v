@@ -78,7 +78,11 @@ void DVP_IRQHandler() {
 }
 
 void NMI_Handler() {
+	while (1)
+		;
 }
 
 void HardFault_Handler() {
+	while (1)
+		;
 }
