@@ -1,8 +1,9 @@
-## vim: ft=yaml :
-
 CompileFlags:
-  Add: ["-Wno-unused-parameter"]
-  #Add: ["--sysroot=C:/MounRiver/MounRiver_Studio/toolchain/RISC-V Embedded GCC/riscv-none-embed", "-Wno-unused-parameter"]
-  #Add: ["--sysroot=/home/wallace/MRS_Toolchain_Linux_x64_V1.80/RISC-V Embedded GCC/riscv-none-embed", "-Wno-unused-parameter"]
-  Remove: ["-march=rv32imafc", "-mabi=ilp32f"]
+  Add:
+    #- "--sysroot=C:/MounRiver/MounRiver_Studio/toolchain/RISC-V Embedded GCC/riscv-none-embed"
+    #- "--sysroot=/home/wallace/MRS_Toolchain_Linux_x64_V1.80/RISC-V Embedded GCC/riscv-none-embed"
+    - "-Wno-unused-parameter"
+  Remove:
+    - "-march=rv32imafc"
+    - "-mabi=ilp32f"
 
