@@ -11,7 +11,8 @@ static volatile uint32_t href_cnt = 0;
 
 extern uint16_t camera_screen_width;
 
-void dvp_row_done_handler() {
+void dvp_row_done_handler()
+{
 	uintptr_t dvp_dma_buffer;
 	int i, columns;
 
@@ -42,29 +43,34 @@ void dvp_row_done_handler() {
 	href_cnt++;
 }
 
-void dvp_frm_done_handler() {
+void dvp_frm_done_handler()
+{
 	DVP->IFR &= ~RB_DVP_IF_FRM_DONE;
 	addr_cnt = 0;
 	href_cnt = 0;
 }
 
-void dvp_str_frm_handler() {
+void dvp_str_frm_handler()
+{
 	DVP->IFR &= ~RB_DVP_IF_STR_FRM;
 	frame_cnt++;
 }
 
-void dvp_stp_frm_handler() {
+void dvp_stp_frm_handler()
+{
 	DVP->IFR &= ~RB_DVP_IF_STP_FRM;
 }
 
-void dvp_fifo_ov_handler() {
+void dvp_fifo_ov_handler()
+{
 	DVP->IFR &= ~RB_DVP_IF_FIFO_OV;
 	/// for debug
 	while (1)
 		;
 }
 
-void DVP_IRQHandler() {
+void DVP_IRQHandler()
+{
 	if (DVP->IFR & RB_DVP_IF_ROW_DONE)
 		dvp_row_done_handler();
 	if (DVP->IFR & RB_DVP_IF_FRM_DONE)
@@ -77,12 +83,14 @@ void DVP_IRQHandler() {
 		dvp_fifo_ov_handler();
 }
 
-void NMI_Handler() {
+void NMI_Handler()
+{
 	while (1)
 		;
 }
 
-void HardFault_Handler() {
+void HardFault_Handler()
+{
 	while (1)
 		;
 }

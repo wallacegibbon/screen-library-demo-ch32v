@@ -18,7 +18,8 @@
 uint16_t camera_screen_width;
 uint16_t camera_screen_height;
 
-void fancy_display(struct painter *painter) {
+void fancy_display(struct painter *painter)
+{
 	static int current_cnt = 0, step = 1;
 	struct point p;
 	struct point size;
@@ -41,7 +42,8 @@ void fancy_display(struct painter *painter) {
 	current_cnt += step;
 }
 
-void screen_1_init(struct ssd1306_screen *screen, struct ssd1306_adaptor_ch32v_i2c *adaptor) {
+void screen_1_init(struct ssd1306_screen *screen, struct ssd1306_adaptor_ch32v_i2c *adaptor)
+{
 	ssd1306_adaptor_ch32v_i2c_init(adaptor, 0x3C);
 	ssd1306_init(screen, (struct ssd1306_adaptor_i **)adaptor);
 	ssd1306_display_on(screen);
@@ -54,7 +56,8 @@ void screen_2_init(struct st7735_screen *screen, struct st7735_adaptor_ch32v_spi
 }
 */
 
-void lcd_bg_pwm_init(uint16_t prescale, uint16_t period, uint16_t compare_value) {
+void lcd_bg_pwm_init(uint16_t prescale, uint16_t period, uint16_t compare_value)
+{
 	TIM_TimeBaseInitTypeDef tim_base_init;
 	TIM_OCInitTypeDef tim_oc_init;
 	GPIO_InitTypeDef gpio_init = {0};
@@ -95,11 +98,13 @@ void lcd_bg_pwm_init(uint16_t prescale, uint16_t period, uint16_t compare_value)
 	TIM_Cmd(TIM1, ENABLE);
 }
 
-void lcd_bg_set_brightness(uint16_t brightness) {
+void lcd_bg_set_brightness(uint16_t brightness)
+{
 	TIM1->CH2CVR = brightness;
 }
 
-void screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc *adaptor) {
+void screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc *adaptor)
+{
 	st7789_adaptor_ch32v_fsmc_init(adaptor);
 
 	st7789_init(screen, (struct st7789_adaptor_i **)adaptor);
@@ -110,7 +115,8 @@ void screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsm
 	lcd_bg_set_brightness(20);
 }
 
-void graphic_play(struct painter *painter) {
+void graphic_play(struct painter *painter)
+{
 	struct point p1, p2, p3, size;
 	struct text_painter text_painter;
 
@@ -157,7 +163,8 @@ void graphic_play(struct painter *painter) {
 		fancy_display(painter);
 }
 
-void dma_lcd_init(uintptr_t periph_address) {
+void dma_lcd_init(uintptr_t periph_address)
+{
 	DMA_InitTypeDef dma_init;
 
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2, ENABLE);
@@ -178,7 +185,8 @@ void dma_lcd_init(uintptr_t periph_address) {
 	DMA_Init(DMA2_Channel5, &dma_init);
 }
 
-void camera_display(struct painter *painter, struct st7789_screen *screen) {
+void camera_display(struct painter *painter, struct st7789_screen *screen)
+{
 	struct point p1, p2, size;
 
 	painter_size(painter, &size);
@@ -213,7 +221,8 @@ void camera_display(struct painter *painter, struct st7789_screen *screen) {
 		;
 }
 
-void compass_display(struct painter *painter) {
+void compass_display(struct painter *painter)
+{
 	struct point p1, p2, size, center;
 	int r = 50;
 	float theta = 45.0 / 180.0 * M_PI;
@@ -230,7 +239,8 @@ void compass_display(struct painter *painter) {
 	painter_draw_line(painter, p1, center, BLUE_24bit);
 }
 
-int main() {
+int main()
+{
 	struct ssd1306_adaptor_ch32v_i2c adaptor1;
 	struct ssd1306_screen screen1;
 	// struct st7735_adaptor_ch32v_spi adaptor2;

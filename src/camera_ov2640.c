@@ -309,7 +309,8 @@ static const uint8_t ov2640_jpeg_reg_tbl[] = {
 };
 // clang-format on
 
-static void dvp_gpio_init() {
+static void dvp_gpio_init()
+{
 	GPIO_InitTypeDef gpio_init;
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD, ENABLE);
@@ -347,31 +348,37 @@ static inline void iic_sda_clr() { GPIOB->BCR = GPIO_Pin_11; }
 static inline void iic_scl_set() { GPIOB->BSHR = GPIO_Pin_10; }
 static inline void iic_scl_clr() { GPIOB->BCR = GPIO_Pin_10; }
 
-static inline int iic_sda_read() {
+static inline int iic_sda_read()
+{
 	return GPIOB->INDR & GPIO_Pin_11;
 }
 
-static inline void iic_scl_in() {
+static inline void iic_scl_in()
+{
 	GPIOB->CFGHR &= 0XFFFFF0FF;
 	GPIOB->CFGHR |= 8 << 8;
 }
 
-static inline void iic_scl_out() {
+static inline void iic_scl_out()
+{
 	GPIOB->CFGHR &= 0XFFFFF0FF;
 	GPIOB->CFGHR |= 3 << 8;
 }
 
-static inline void iic_sda_in() {
+static inline void iic_sda_in()
+{
 	GPIOB->CFGHR &= 0XFFFF0FFF;
 	GPIOB->CFGHR |= 8 << 12;
 }
 
-static inline void iic_sda_out() {
+static inline void iic_sda_out()
+{
 	GPIOB->CFGHR &= 0XFFFF0FFF;
 	GPIOB->CFGHR |= 3 << 12;
 }
 
-void sccb_gpio_init() {
+void sccb_gpio_init()
+{
 	iic_scl_out();
 	iic_sda_out();
 	iic_scl_set();
@@ -379,7 +386,8 @@ void sccb_gpio_init() {
 }
 
 /// This function should be called after `camera_screen_width` got initialized.
-void dvp_init() {
+void dvp_init()
+{
 	NVIC_InitTypeDef nvic_init = {0};
 
 	// assert(camera_screen_width > 0);
@@ -445,13 +453,15 @@ void dvp_init() {
 	DVP->CR0 |= RB_DVP_ENABLE;
 }
 
-void ov2640_send_command_table(const uint8_t *cmd_tbl, int size) {
+void ov2640_send_command_table(const uint8_t *cmd_tbl, int size)
+{
 	int i;
 	for (i = 0; i < size / 2; i++)
 		sccb_write_reg(cmd_tbl[i * 2], cmd_tbl[i * 2 + 1]);
 }
 
-int ov2640_init() {
+int ov2640_init()
+{
 	int reg;
 
 	sccb_gpio_init();
@@ -489,18 +499,21 @@ int ov2640_init() {
 	return 0;
 }
 
-void ov2640_jpeg_mode() {
+void ov2640_jpeg_mode()
+{
 	ov2640_send_command_table(ov2640_yuv422_reg_tbl, sizeof(ov2640_yuv422_reg_tbl));
 	ov2640_send_command_table(ov2640_jpeg_reg_tbl, sizeof(ov2640_jpeg_reg_tbl));
 }
 
-void ov2640_rgb565_mode() {
+void ov2640_rgb565_mode()
+{
 	ov2640_send_command_table(ov2640_rgb565_reg_tbl, sizeof(ov2640_rgb565_reg_tbl));
 }
 
 /// Register 5A, 5B and 5C control the output size of OV2640.
 /// 5A: OUTW[7:0]; 5B: OUTH[7:0]; 5C: ([2]: OUTH[8]; [1:0]: OUTW[9:8])
-int ov2640_outsize_set(uint16_t image_width, uint16_t image_height) {
+int ov2640_outsize_set(uint16_t image_width, uint16_t image_height)
+{
 	uint16_t outsize_width, outsize_height;
 	uint8_t tmp;
 
@@ -522,7 +535,8 @@ int ov2640_outsize_set(uint16_t image_width, uint16_t image_height) {
 	return 0;
 }
 
-void ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
+void ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div)
+{
 	sccb_write_reg(0xFF, 0);
 	sccb_write_reg(0xD3, pclk_div);
 
@@ -530,14 +544,16 @@ void ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div) {
 	sccb_write_reg(0x11, xclk_div);
 }
 
-void ov2640_rgb565_mode_init() {
+void ov2640_rgb565_mode_init()
+{
 	ov2640_rgb565_mode();
 	ov2640_outsize_set(RGB565_COL_NUM, RGB565_ROW_NUM);
 	// ov2640_speed_set(15, 3);
 	ov2640_speed_set(1, 1);
 }
 
-void sccb_start() {
+void sccb_start()
+{
 	iic_sda_set();
 	iic_scl_set();
 	delay_us(50);
@@ -546,7 +562,8 @@ void sccb_start() {
 	iic_scl_clr();
 }
 
-void sccb_stop() {
+void sccb_stop()
+{
 	iic_sda_clr();
 	delay_us(50);
 	iic_scl_set();
@@ -555,7 +572,8 @@ void sccb_stop() {
 	delay_us(50);
 }
 
-void sccb_no_ack() {
+void sccb_no_ack()
+{
 	delay_us(50);
 	iic_sda_set();
 	iic_scl_set();
@@ -566,7 +584,8 @@ void sccb_no_ack() {
 	delay_us(50);
 }
 
-int sccb_write_byte(uint8_t data) {
+int sccb_write_byte(uint8_t data)
+{
 	int i, t;
 	for (i = 0; i < 8; i++) {
 		if (data & 0x80)
@@ -594,7 +613,8 @@ int sccb_write_byte(uint8_t data) {
 	return t;
 }
 
-uint8_t sccb_read_byte() {
+uint8_t sccb_read_byte()
+{
 	int i, t = 0;
 
 	iic_sda_in();
@@ -615,7 +635,8 @@ uint8_t sccb_read_byte() {
 	return t;
 }
 
-int sccb_write_reg(uint8_t reg_addr, uint8_t reg_data) {
+int sccb_write_reg(uint8_t reg_addr, uint8_t reg_data)
+{
 	int r = 0;
 	sccb_start();
 
@@ -635,7 +656,8 @@ int sccb_write_reg(uint8_t reg_addr, uint8_t reg_data) {
 	return r;
 }
 
-uint8_t sccb_read_reg(uint8_t reg_addr) {
+uint8_t sccb_read_reg(uint8_t reg_addr)
+{
 	int r = 0;
 	sccb_start();
 	sccb_write_byte(OV2640_SCCB_ID);

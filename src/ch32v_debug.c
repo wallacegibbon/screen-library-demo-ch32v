@@ -1,7 +1,9 @@
 #include <ch32v30x.h>
 #include <ch32v_debug.h>
+#include <stddef.h>
 
-void usart_printf_init(uint32_t baudrate) {
+void usart_printf_init(uint32_t baudrate)
+{
 	GPIO_InitTypeDef gpio_init;
 	USART_InitTypeDef usart_init;
 
@@ -55,7 +57,8 @@ void usart_printf_init(uint32_t baudrate) {
 #endif
 }
 
-__attribute__((used)) int _write(int fd, char *buf, int size) {
+__attribute__((used)) int _write(int fd, char *buf, int size)
+{
 	int i;
 
 	for (i = 0; i < size; i++) {
@@ -77,7 +80,8 @@ __attribute__((used)) int _write(int fd, char *buf, int size) {
 	return size;
 }
 
-void *_sbrk(ptrdiff_t incr) {
+void *_sbrk(ptrdiff_t incr)
+{
 	extern char _end[];
 	extern char _heap_end[];
 	static char *curbrk = _end;
