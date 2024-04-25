@@ -11,6 +11,6 @@
 #define DEBUG DEBUG_UART1
 #endif
 
-void usart_printf_init(uint32_t baudrate);
+int usart_printf_init(long baudrate);
 
 #endif

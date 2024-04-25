@@ -5,11 +5,11 @@ void DVP_IRQHandler() __attribute__((interrupt("WCH-Interrupt-fast")));
 void NMI_Handler() __attribute__((interrupt("WCH-Interrupt-fast")));
 void HardFault_Handler() __attribute__((interrupt("WCH-Interrupt-fast")));
 
-static volatile uint32_t frame_cnt = 0;
-static volatile uint32_t addr_cnt = 0;
-static volatile uint32_t href_cnt = 0;
+static volatile unsigned long frame_cnt = 0;
+static volatile unsigned long addr_cnt = 0;
+static volatile unsigned long href_cnt = 0;
 
-extern uint16_t camera_screen_width;
+extern int camera_screen_width;
 
 void dvp_row_done_handler()
 {

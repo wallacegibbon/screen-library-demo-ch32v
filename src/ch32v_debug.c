@@ -2,7 +2,7 @@
 #include <ch32v_debug.h>
 #include <stddef.h>
 
-void usart_printf_init(uint32_t baudrate)
+int usart_printf_init(long baudrate)
 {
 	GPIO_InitTypeDef gpio_init;
 	USART_InitTypeDef usart_init;
@@ -55,6 +55,7 @@ void usart_printf_init(uint32_t baudrate)
 	USART_Cmd(USART3, ENABLE);
 
 #endif
+	return 0;
 }
 
 __attribute__((used)) int _write(int fd, char *buf, int size)

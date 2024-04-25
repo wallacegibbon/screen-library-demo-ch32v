@@ -1,7 +1,6 @@
 #include "camera_ov2640.h"
 #include "ch32v30x.h"
 #include "core_systick.h"
-#include <assert.h>
 #include <stdint.h>
 #include <unistd.h>
 
@@ -13,11 +12,11 @@ extern uint16_t camera_screen_height;
 ///
 /// In RGB565 mode, every pixel takes 2 bytes. But the DVP of MCU works in
 /// 10-bit mode, every 10-bit data takes 2 bytes, so every pixel takes 4 bytes.
-uint8_t *rgb565_dvp_dma_buffer0;
-uint8_t *rgb565_dvp_dma_buffer1;
+unsigned char *rgb565_dvp_dma_buffer0;
+unsigned char *rgb565_dvp_dma_buffer1;
 
-int sccb_write_reg(uint8_t reg_addr, uint8_t reg_data);
-uint8_t sccb_read_reg(uint8_t reg_addr);
+int sccb_write_reg(int reg_addr, int reg_data);
+int sccb_read_reg(int reg_addr);
 
 #define RGB565_COL_NUM 320
 #define RGB565_ROW_NUM 240
@@ -28,7 +27,7 @@ uint8_t sccb_read_reg(uint8_t reg_addr);
 
 // clang-format off
 /// Start Camera list of initialization configuration registers
-static const uint8_t ov2640_init_reg_tbl[] = {
+static const unsigned char ov2640_init_reg_tbl[] = {
 	/// select DSP register bank
 	0xFF, 0x00,
 	0x2C, 0xFF,
@@ -262,7 +261,7 @@ static const uint8_t ov2640_init_reg_tbl[] = {
 };
 
 /// RGB565
-static const uint8_t ov2640_rgb565_reg_tbl[] = {
+static const unsigned char ov2640_rgb565_reg_tbl[] = {
 	/// select DSP register bank
 	0xFF, 0x00,
 	/// register 0xDA controls IMAGE_MODE
@@ -283,7 +282,7 @@ static const uint8_t ov2640_rgb565_reg_tbl[] = {
 };
 
 /// YUV422
-static const uint8_t ov2640_yuv422_reg_tbl[] = {
+static const unsigned char ov2640_yuv422_reg_tbl[] = {
 	/// select DSP register bank
 	0xFF, 0x00,
 	/// register 0xDA controls IMAGE_MODE
@@ -297,7 +296,7 @@ static const uint8_t ov2640_yuv422_reg_tbl[] = {
 };
 
 /// JPEG
-static const uint8_t ov2640_jpeg_reg_tbl[] = {
+static const unsigned char ov2640_jpeg_reg_tbl[] = {
 	/// select sensor register bank
 	0xFF, 0x01,
 	0xE0, 0x14,
@@ -453,7 +452,7 @@ void dvp_init()
 	DVP->CR0 |= RB_DVP_ENABLE;
 }
 
-void ov2640_send_command_table(const uint8_t *cmd_tbl, int size)
+void ov2640_send_command_table(const unsigned char *cmd_tbl, int size)
 {
 	int i;
 	for (i = 0; i < size / 2; i++)
@@ -515,7 +514,7 @@ void ov2640_rgb565_mode()
 int ov2640_outsize_set(uint16_t image_width, uint16_t image_height)
 {
 	uint16_t outsize_width, outsize_height;
-	uint8_t tmp;
+	unsigned char tmp;
 
 	if (image_width % 4 || image_height % 4)
 		return 1;
@@ -535,7 +534,7 @@ int ov2640_outsize_set(uint16_t image_width, uint16_t image_height)
 	return 0;
 }
 
-void ov2640_speed_set(uint8_t pclk_div, uint8_t xclk_div)
+void ov2640_speed_set(unsigned char pclk_div, unsigned char xclk_div)
 {
 	sccb_write_reg(0xFF, 0);
 	sccb_write_reg(0xD3, pclk_div);
@@ -584,7 +583,7 @@ void sccb_no_ack()
 	delay_us(50);
 }
 
-int sccb_write_byte(uint8_t data)
+int sccb_write_byte(unsigned char data)
 {
 	int i, t;
 	for (i = 0; i < 8; i++) {
@@ -613,7 +612,7 @@ int sccb_write_byte(uint8_t data)
 	return t;
 }
 
-uint8_t sccb_read_byte()
+unsigned char sccb_read_byte()
 {
 	int i, t = 0;
 
@@ -635,7 +634,7 @@ uint8_t sccb_read_byte()
 	return t;
 }
 
-int sccb_write_reg(uint8_t reg_addr, uint8_t reg_data)
+int sccb_write_reg(int reg_addr, int reg_data)
 {
 	int r = 0;
 	sccb_start();
@@ -656,7 +655,7 @@ int sccb_write_reg(uint8_t reg_addr, uint8_t reg_data)
 	return r;
 }
 
-uint8_t sccb_read_reg(uint8_t reg_addr)
+int sccb_read_reg(int reg_addr)
 {
 	int r = 0;
 	sccb_start();

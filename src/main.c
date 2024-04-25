@@ -15,15 +15,15 @@
 #include <stdio.h>
 
 /// global variables that should be initialzed to the size of the target screen on startup. (before DVP initializing and DVP interrupts)
-uint16_t camera_screen_width;
-uint16_t camera_screen_height;
+int camera_screen_width;
+int camera_screen_height;
 
-void fancy_display(struct painter *painter)
+int fancy_display(struct painter *painter)
 {
 	static int current_cnt = 0, step = 1;
 	struct point p;
 	struct point size;
-	uint32_t color;
+	long color;
 	int i;
 
 	painter_size(painter, &size);
@@ -40,23 +40,32 @@ void fancy_display(struct painter *painter)
 		step = 1;
 
 	current_cnt += step;
+	return 0;
 }
 
-void screen_1_init(struct ssd1306_screen *screen, struct ssd1306_adaptor_ch32v_i2c *adaptor)
+int screen_1_init(struct ssd1306_screen *screen, struct ssd1306_adaptor_ch32v_i2c *adaptor)
 {
-	ssd1306_adaptor_ch32v_i2c_init(adaptor, 0x3C);
-	ssd1306_init(screen, (struct ssd1306_adaptor_i **)adaptor);
-	ssd1306_display_on(screen);
+	if (ssd1306_adaptor_ch32v_i2c_init(adaptor, 0x3C))
+		return 1;
+	if (ssd1306_init(screen, (struct ssd1306_adaptor_i **)adaptor))
+		return 2;
+	if (ssd1306_display_on(screen))
+		return 3;
+	return 0;
 }
 
 /*
-void screen_2_init(struct st7735_screen *screen, struct st7735_adaptor_ch32v_spi *adaptor) {
-	st7735_adaptor_ch32v_spi_init(adaptor, ...);
-	st7735_init(screen, (struct st7735_adaptor_i **)adaptor);
+int screen_2_init(struct st7735_screen *screen, struct st7735_adaptor_ch32v_spi *adaptor)
+{
+	if (st7735_adaptor_ch32v_spi_init(adaptor, ...))
+		return 1;
+	if (st7735_init(screen, (struct st7735_adaptor_i **)adaptor))
+		return 2;
+	return 0;
 }
 */
 
-void lcd_bg_pwm_init(uint16_t prescale, uint16_t period, uint16_t compare_value)
+int lcd_bg_pwm_init(uint16_t prescale, uint16_t period, uint16_t compare_value)
 {
 	TIM_TimeBaseInitTypeDef tim_base_init;
 	TIM_OCInitTypeDef tim_oc_init;
@@ -96,26 +105,32 @@ void lcd_bg_pwm_init(uint16_t prescale, uint16_t period, uint16_t compare_value)
 	TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Disable);
 	TIM_ARRPreloadConfig(TIM1, ENABLE);
 	TIM_Cmd(TIM1, ENABLE);
+	return 0;
 }
 
-void lcd_bg_set_brightness(uint16_t brightness)
+int lcd_bg_set_brightness(uint16_t brightness)
 {
 	TIM1->CH2CVR = brightness;
+	return 0;
 }
 
-void screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc *adaptor)
+int screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc *adaptor)
 {
-	st7789_adaptor_ch32v_fsmc_init(adaptor);
-
-	st7789_init(screen, (struct st7789_adaptor_i **)adaptor);
+	if (st7789_adaptor_ch32v_fsmc_init(adaptor))
+		return 1;
+	if (st7789_init(screen, (struct st7789_adaptor_i **)adaptor))
+		return 2;
 
 	// GPIO_SetBits(GPIOB, GPIO_Pin_14);
 
-	lcd_bg_pwm_init(144 - 1, 100, 50);
-	lcd_bg_set_brightness(20);
+	if (lcd_bg_pwm_init(144 - 1, 100, 50))
+		return 3;
+	if (lcd_bg_set_brightness(20))
+		return 4;
+	return 0;
 }
 
-void graphic_play(struct painter *painter)
+int graphic_play(struct painter *painter)
 {
 	struct point p1, p2, p3, size;
 	struct text_painter text_painter;
@@ -161,9 +176,11 @@ void graphic_play(struct painter *painter)
 
 	while (1)
 		fancy_display(painter);
+
+	return 0;
 }
 
-void dma_lcd_init(uintptr_t periph_address)
+int dma_lcd_init(uintptr_t periph_address)
 {
 	DMA_InitTypeDef dma_init;
 
@@ -183,9 +200,10 @@ void dma_lcd_init(uintptr_t periph_address)
 	dma_init.DMA_M2M = DMA_M2M_Enable;
 
 	DMA_Init(DMA2_Channel5, &dma_init);
+	return 0;
 }
 
-void camera_display(struct painter *painter, struct st7789_screen *screen)
+int camera_display(struct painter *painter, struct st7789_screen *screen)
 {
 	struct point p1, p2, size;
 
@@ -219,9 +237,11 @@ void camera_display(struct painter *painter, struct st7789_screen *screen)
 
 	while (1)
 		;
+
+	return 0;
 }
 
-void compass_display(struct painter *painter)
+int compass_display(struct painter *painter)
 {
 	struct point p1, p2, size, center;
 	int r = 50;
@@ -237,6 +257,7 @@ void compass_display(struct painter *painter)
 	painter_draw_line(painter, p1, center, RED_24bit);
 	point_init(&p1, center.x - r * cos(theta), center.y + r * sin(theta));
 	painter_draw_line(painter, p1, center, BLUE_24bit);
+	return 0;
 }
 
 int main()
