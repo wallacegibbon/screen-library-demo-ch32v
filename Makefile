@@ -16,10 +16,10 @@ CH32_STD_LIB_DIR = ../miscellaneous-periph-libraries/ch32v30x
 
 CROSS_C_SOURCE_FILES += $(wildcard $(CH32_STD_LIB_DIR)/peripheral/src/*.c)
 CROSS_C_SOURCE_FILES += $(wildcard $(CH32_STD_LIB_DIR)/core/*.c)
-CROSS_C_SOURCE_FILES += $(wildcard ./screen-library-mcu/*.c)
-CROSS_C_SOURCE_FILES += ./screen-library-mcu/ch32v/sc_ssd1306_ch32v_i2c.c
-CROSS_C_SOURCE_FILES += ./screen-library-mcu/ch32v/sc_common_ch32v.c
-CROSS_C_SOURCE_FILES += ./screen-library-mcu/ch32v/sc_st7789_ch32v_fsmc.c
+CROSS_C_SOURCE_FILES += $(wildcard ../generic-screen-painter/src/*.c)
+CROSS_C_SOURCE_FILES += ../generic-screen-painter/adaptor/ch32v/sc_ssd1306_ch32v_i2c.c
+CROSS_C_SOURCE_FILES += ../generic-screen-painter/adaptor/ch32v/sc_common_ch32v.c
+CROSS_C_SOURCE_FILES += ../generic-screen-painter/adaptor/ch32v/sc_st7789_ch32v_fsmc.c
 CROSS_C_SOURCE_FILES += ./src/camera_ov2640.c
 CROSS_C_SOURCE_FILES += ./src/ch32v_debug.c
 CROSS_C_SOURCE_FILES += ./src/ch32v_it.c
@@ -28,7 +28,7 @@ CROSS_C_SOURCE_FILES += ./src/main.c
 CROSS_ASM_SOURCE_FILES += $(CH32_STD_LIB_DIR)/sample/startup.S
 
 CROSS_C_INCLUDES = $(CH32_STD_LIB_DIR)/peripheral/inc $(CH32_STD_LIB_DIR)/core \
-./screen-library-mcu/ch32v ./screen-library-mcu ./src \
+../generic-screen-painter/include ../generic-screen-painter/adaptor/ch32v ./src \
 
 CROSS_C_FLAGS += -fno-common -fno-builtin -Os
 CROSS_C_FLAGS += -DCHIP_CH32V30X
