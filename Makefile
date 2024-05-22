@@ -23,6 +23,7 @@ CROSS_C_SOURCE_FILES += ../generic-screen-painter/adaptor/ch32v/sc_st7789_ch32v_
 CROSS_C_SOURCE_FILES += ./src/camera_ov2640.c
 CROSS_C_SOURCE_FILES += ./src/ch32v_debug.c
 CROSS_C_SOURCE_FILES += ./src/ch32v_it.c
+CROSS_C_SOURCE_FILES += ./src/sc_st7789_ch32v_hwspi.c
 CROSS_C_SOURCE_FILES += ./src/main.c
 
 CROSS_ASM_SOURCE_FILES += $(CH32_STD_LIB_DIR)/sample/startup.S

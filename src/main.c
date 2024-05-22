@@ -2,6 +2,7 @@
 #include "sc_ssd1306_ch32v_i2c.h"
 #include "sc_st7789.h"
 #include "sc_st7789_ch32v_fsmc.h"
+#include "sc_st7789_ch32v_hwspi.h"
 // #include "sc_st7735_ch32v_spi.h"
 #include "camera_ov2640.h"
 #include "ch32v30x.h"
@@ -11,6 +12,7 @@
 #include "sc_common.h"
 #include "sc_painter.h"
 #include "sc_st7735.h"
+#include "sc_st7789_ch32v_hwspi.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -127,6 +129,16 @@ int screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc
 		return 3;
 	if (lcd_bg_set_brightness(20))
 		return 4;
+	return 0;
+}
+
+int screen_4_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_hwspi *adaptor)
+{
+	if (st7789_adaptor_ch32v_hwspi_init(adaptor))
+		return 1;
+	if (st7789_init(screen, (struct st7789_adaptor_i **)adaptor))
+		return 2;
+
 	return 0;
 }
 
@@ -266,8 +278,10 @@ int main()
 	struct ssd1306_screen screen1;
 	// struct st7735_adaptor_ch32v_spi adaptor2;
 	// struct st7735_screen screen2;
-	struct st7789_adaptor_ch32v_fsmc adaptor3;
-	struct st7789_screen screen3;
+	// struct st7789_adaptor_ch32v_fsmc adaptor3;
+	// struct st7789_screen screen3;
+	struct st7789_adaptor_ch32v_hwspi adaptor4;
+	struct st7789_screen screen4;
 	struct painter painter;
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
@@ -275,16 +289,18 @@ int main()
 
 	// screen_1_init(&screen1, &adaptor1);
 	// screen_2_init(&screen2, &adaptor2);
-	screen_3_init(&screen3, &adaptor3);
+	// screen_3_init(&screen3, &adaptor3);
+	screen_4_init(&screen4, &adaptor4);
 
 	// SSD1306_Screen_set_up_down_invert(&screen1);
 
 	// painter.drawing_board = (struct drawing_i **)&screen1;
 	// painter.drawing_board = (struct drawing_i **)&screen2;
-	painter.drawing_board = (struct drawing_i **)&screen3;
+	// painter.drawing_board = (struct drawing_i **)&screen3;
+	painter.drawing_board = (struct drawing_i **)&screen4;
 
 	usart_printf_init(115200);
-	printf("System is ready now. SystemClk: %lu\r\n", SystemCoreClock);
+	printf("System is ready now. SystemClk: %u\r\n", SystemCoreClock);
 
 	// camera_display(&painter, &screen3);
 	graphic_play(&painter);
