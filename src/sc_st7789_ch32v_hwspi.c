@@ -15,6 +15,19 @@ static struct st7789_adaptor_i adaptor_interface = {
 	.write_cmd = (st7789_adaptor_write_cmd_fn_t)write_cmd,
 };
 
+int SPI1_write(unsigned char data)
+{
+	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET)
+		;
+
+	SPI_I2S_SendData(SPI1, data);
+
+	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) == SET)
+		;
+
+	return 0;
+}
+
 static int write_data_16(struct st7789_adaptor_ch32v_hwspi *self, int data)
 {
 	/// CS = 0;
@@ -23,8 +36,8 @@ static int write_data_16(struct st7789_adaptor_ch32v_hwspi *self, int data)
 	/// DC = 1;
 	GPIO_SetBits(GPIOA, GPIO_Pin_3);
 
-	SPI_I2S_SendData(SPI1, data >> 8);
-	SPI_I2S_SendData(SPI1, data);
+	SPI1_write(data >> 8);
+	SPI1_write(data);
 
 	/// CS = 1;
 	GPIO_SetBits(GPIOA, GPIO_Pin_4);
@@ -39,7 +52,7 @@ static int write_data(struct st7789_adaptor_ch32v_hwspi *self, int data)
 	/// DC = 1;
 	GPIO_SetBits(GPIOA, GPIO_Pin_3);
 
-	SPI_I2S_SendData(SPI1, data);
+	SPI1_write(data);
 
 	/// CS = 1;
 	GPIO_SetBits(GPIOA, GPIO_Pin_4);
@@ -53,7 +66,7 @@ static int write_cmd(struct st7789_adaptor_ch32v_hwspi *self, int cmd)
 
 	/// DC = 0;
 	GPIO_ResetBits(GPIOA, GPIO_Pin_3);
-	SPI_I2S_SendData(SPI1, cmd);
+	SPI1_write(cmd);
 
 	/// CS = 1;
 	GPIO_SetBits(GPIOA, GPIO_Pin_4);

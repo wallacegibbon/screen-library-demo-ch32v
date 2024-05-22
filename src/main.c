@@ -306,5 +306,7 @@ int main()
 	graphic_play(&painter);
 	// compass_display(&painter);
 
+	while (1)
+		;
 	return 0;
 }

@@ -26,7 +26,7 @@ CROSS_C_SOURCE_FILES += ./src/ch32v_it.c
 CROSS_C_SOURCE_FILES += ./src/sc_st7789_ch32v_hwspi.c
 CROSS_C_SOURCE_FILES += ./src/main.c
 
-CROSS_ASM_SOURCE_FILES += $(CH32_STD_LIB_DIR)/sample/startup.S
+CROSS_ASM_SOURCE_FILES += src/startup.S
 
 CROSS_C_INCLUDES = $(CH32_STD_LIB_DIR)/peripheral/inc $(CH32_STD_LIB_DIR)/core \
 ../generic-screen-painter/include ../generic-screen-painter/adaptor/ch32v ./src \
@@ -37,7 +37,7 @@ CROSS_C_FLAGS += -DCHIP_CH32V30X
 #CROSS_C_FLAGS += -DBEZIER_DEBUG
 
 CROSS_LD_FLAGS += -Wl,--no-relax -specs=nosys.specs -specs=nano.specs -nostartfiles \
--T$(CH32_STD_LIB_DIR)/sample/default.ld
+-T./default.ld
 
 CROSS_LD_FLAGS += -lm
 
