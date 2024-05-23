@@ -20,7 +20,7 @@
 int camera_screen_width;
 int camera_screen_height;
 
-int fancy_display(struct painter *painter)
+int fancy_display(struct sc_painter *painter)
 {
 	static int current_cnt = 0, step = 1;
 	struct point p;
@@ -28,13 +28,13 @@ int fancy_display(struct painter *painter)
 	long color;
 	int i;
 
-	painter_size(painter, &size);
+	sc_painter_size(painter, &size);
 	point_init(&p, size.x / 2, size.y / 2);
 	for (i = 0; i < 31; i++) {
 		color = (ABS(current_cnt - i) < 3) ? BLACK_24bit : CYAN_24bit;
-		painter_draw_circle(painter, p, i, color);
+		sc_painter_draw_circle(painter, p, i, color);
 	}
-	painter_flush(painter);
+	sc_painter_flush(painter);
 
 	if (current_cnt == 31)
 		step = -1;
@@ -142,49 +142,49 @@ int screen_4_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_hwsp
 	return 0;
 }
 
-int graphic_play(struct painter *painter)
+int graphic_play(struct sc_painter *painter)
 {
 	struct point p1, p2, p3, size;
-	struct text_painter text_painter;
+	struct sc_text_painter text_painter;
 
-	painter_clear(painter, BLACK_24bit);
+	sc_painter_clear(painter, BLACK_24bit);
 
 	/// The default method do not flush, but overridden `clear` can do flush automatically.
-	// painter_flush(painter);
+	// sc_painter_flush(painter);
 
 	/// text drawing
-	text_painter_init(&text_painter, painter);
+	sc_text_painter_init(&text_painter, painter);
 
 	color_pair_init(&text_painter.color, RED_24bit, BLACK_24bit);
 	point_init(&text_painter.pos, 0, 0);
 
-	text_draw_string(&text_painter, "1.5 Programming!", 32);
+	sc_text_draw_string(&text_painter, "1.5 Programming!", 32);
 
 	color_pair_init(&text_painter.color, GREEN_24bit, BLACK_24bit);
 	point_init(&text_painter.pos, 0, 32);
 
-	text_draw_string(&text_painter, "1.5 Programming!", 16);
+	sc_text_draw_string(&text_painter, "1.5 Programming!", 16);
 
-	painter_size(painter, &size);
+	sc_painter_size(painter, &size);
 
 	point_init(&p1, size.x / 2 - 50, size.y / 2 - 20);
 	point_init(&p2, size.x / 2 + 50, size.y / 2 + 20);
-	painter_draw_rectangle(painter, p1, p2, YELLOW_24bit);
+	sc_painter_draw_rectangle(painter, p1, p2, YELLOW_24bit);
 
 	point_init(&p1, size.x / 2 - 50, size.y / 2 - 20);
-	painter_draw_circle(painter, p1, 5, MAGENTA_24bit);
+	sc_painter_draw_circle(painter, p1, 5, MAGENTA_24bit);
 
 	point_init(&p1, 10, size.y / 2 - 20);
 	point_init(&p2, 10, size.y / 2 + 20);
-	painter_draw_line(painter, p1, p2, WHITE_24bit);
+	sc_painter_draw_line(painter, p1, p2, WHITE_24bit);
 
 	point_init(&p1, 60, 60);
 	point_init(&p2, 10, size.y - 60);
 	point_init(&p3, size.x, -60);
 
-	painter_draw_bezier(painter, p1, p2, p3, BLUE_24bit);
+	sc_painter_draw_bezier(painter, p1, p2, p3, BLUE_24bit);
 
-	painter_flush(painter);
+	sc_painter_flush(painter);
 
 	while (1)
 		fancy_display(painter);
@@ -215,17 +215,17 @@ int dma_lcd_init(uintptr_t periph_address)
 	return 0;
 }
 
-int camera_display(struct painter *painter, struct st7789_screen *screen)
+int camera_display(struct sc_painter *painter, struct st7789_screen *screen)
 {
 	struct point p1, p2, size;
 
-	painter_size(painter, &size);
+	sc_painter_size(painter, &size);
 	/// initialize global variables that represent the size of the screen.
 	camera_screen_width = size.x;
 	camera_screen_height = size.y;
 
-	painter_clear(painter, BLACK_24bit);
-	// painter_clear(painter, RED_24bit);
+	sc_painter_clear(painter, BLACK_24bit);
+	// sc_painter_clear(painter, RED_24bit);
 
 	// point_init(&p1, 0, 0);
 	// point_init(&p2, camera_screen_width - 1, camera_screen_height - 1);
@@ -253,22 +253,22 @@ int camera_display(struct painter *painter, struct st7789_screen *screen)
 	return 0;
 }
 
-int compass_display(struct painter *painter)
+int compass_display(struct sc_painter *painter)
 {
 	struct point p1, p2, size, center;
 	int r = 50;
 	float theta = 45.0 / 180.0 * M_PI;
 
-	painter_clear(painter, BLACK_24bit);
+	sc_painter_clear(painter, BLACK_24bit);
 
-	painter_size(painter, &size);
+	sc_painter_size(painter, &size);
 	center.x = size.x / 2;
 	center.y = size.y / 2;
 
 	point_init(&p1, center.x + r * cos(theta), center.y - r * sin(theta));
-	painter_draw_line(painter, p1, center, RED_24bit);
+	sc_painter_draw_line(painter, p1, center, RED_24bit);
 	point_init(&p1, center.x - r * cos(theta), center.y + r * sin(theta));
-	painter_draw_line(painter, p1, center, BLUE_24bit);
+	sc_painter_draw_line(painter, p1, center, BLUE_24bit);
 	return 0;
 }
 
@@ -282,7 +282,7 @@ int main()
 	// struct st7789_screen screen3;
 	struct st7789_adaptor_ch32v_hwspi adaptor4;
 	struct st7789_screen screen4;
-	struct painter painter;
+	struct sc_painter painter;
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	systick_interrupt_init();
