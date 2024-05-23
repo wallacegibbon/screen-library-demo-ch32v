@@ -300,7 +300,7 @@ int main()
 	painter.drawing_board = (struct drawing_i **)&screen4;
 
 	usart_printf_init(115200);
-	printf("System is ready now. SystemClk: %u\r\n", SystemCoreClock);
+	printf("System is ready now. SystemClk: %lu\r\n", SystemCoreClock);
 
 	// camera_display(&painter, &screen3);
 	graphic_play(&painter);

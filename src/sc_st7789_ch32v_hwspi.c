@@ -5,12 +5,10 @@
 #include "sc_common.h"
 #include "sc_st7789.h"
 
-static int write_data_16(struct st7789_adaptor_ch32v_hwspi *self, int data);
 static int write_data(struct st7789_adaptor_ch32v_hwspi *self, int data);
 static int write_cmd(struct st7789_adaptor_ch32v_hwspi *self, int cmd);
 
 static struct st7789_adaptor_i adaptor_interface = {
-	.write_data_16 = (st7789_adaptor_write_data_16_fn_t)write_data_16,
 	.write_data = (st7789_adaptor_write_data_fn_t)write_data,
 	.write_cmd = (st7789_adaptor_write_cmd_fn_t)write_cmd,
 };
@@ -28,27 +26,10 @@ int SPI1_write(unsigned char data)
 	return 0;
 }
 
-static int write_data_16(struct st7789_adaptor_ch32v_hwspi *self, int data)
-{
-	/// CS = 0;
-	GPIO_ResetBits(GPIOA, GPIO_Pin_4);
-
-	/// DC = 1;
-	GPIO_SetBits(GPIOA, GPIO_Pin_3);
-
-	SPI1_write(data >> 8);
-	SPI1_write(data);
-
-	/// CS = 1;
-	GPIO_SetBits(GPIOA, GPIO_Pin_4);
-	return 0;
-}
-
 static int write_data(struct st7789_adaptor_ch32v_hwspi *self, int data)
 {
 	/// CS = 0;
 	GPIO_ResetBits(GPIOA, GPIO_Pin_4);
-
 	/// DC = 1;
 	GPIO_SetBits(GPIOA, GPIO_Pin_3);
 
@@ -63,9 +44,9 @@ static int write_cmd(struct st7789_adaptor_ch32v_hwspi *self, int cmd)
 {
 	/// CS = 0;
 	GPIO_ResetBits(GPIOA, GPIO_Pin_4);
-
 	/// DC = 0;
 	GPIO_ResetBits(GPIOA, GPIO_Pin_3);
+
 	SPI1_write(cmd);
 
 	/// CS = 1;
