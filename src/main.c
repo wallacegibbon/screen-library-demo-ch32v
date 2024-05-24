@@ -56,17 +56,6 @@ int screen_1_init(struct ssd1306_screen *screen, struct ssd1306_adaptor_ch32v_i2
 	return 0;
 }
 
-/*
-int screen_2_init(struct st7735_screen *screen, struct st7735_adaptor_ch32v_spi *adaptor)
-{
-	if (st7735_adaptor_ch32v_spi_init(adaptor, ...))
-		return 1;
-	if (st7735_init(screen, (struct st7735_adaptor_i **)adaptor))
-		return 2;
-	return 0;
-}
-*/
-
 int lcd_bg_pwm_init(uint16_t prescale, uint16_t period, uint16_t compare_value)
 {
 	TIM_TimeBaseInitTypeDef tim_base_init;
@@ -120,7 +109,7 @@ int screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc
 {
 	if (st7789_adaptor_ch32v_fsmc_init(adaptor))
 		return 1;
-	if (st7789_init(screen, (struct st7789_adaptor_i **)adaptor))
+	if (st7789_init(screen, (struct sc_adaptor_i **)adaptor))
 		return 2;
 
 	// GPIO_SetBits(GPIOB, GPIO_Pin_14);
@@ -136,7 +125,7 @@ int screen_4_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_hwsp
 {
 	if (st7789_adaptor_ch32v_hwspi_init(adaptor))
 		return 1;
-	if (st7789_init(screen, (struct st7789_adaptor_i **)adaptor))
+	if (st7789_init(screen, (struct sc_adaptor_i **)adaptor))
 		return 2;
 
 	return 0;

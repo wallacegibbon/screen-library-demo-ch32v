@@ -2,15 +2,19 @@
 #include "ch32v30x_gpio.h"
 #include "ch32v30x_rcc.h"
 #include "ch32v30x_spi.h"
+#include "sc_adaptor.h"
 #include "sc_common.h"
-#include "sc_st7789.h"
 
+static int start_transmit(struct st7789_adaptor_ch32v_hwspi *self);
+static int stop_transmit(struct st7789_adaptor_ch32v_hwspi *self);
 static int write_data(struct st7789_adaptor_ch32v_hwspi *self, int data);
 static int write_cmd(struct st7789_adaptor_ch32v_hwspi *self, int cmd);
 
-static struct st7789_adaptor_i adaptor_interface = {
-	.write_data = (st7789_adaptor_write_data_fn_t)write_data,
-	.write_cmd = (st7789_adaptor_write_cmd_fn_t)write_cmd,
+static struct sc_adaptor_i adaptor_interface = {
+	.start_transmit = (sc_adaptor_start_transmit_fn_t)start_transmit,
+	.stop_transmit = (sc_adaptor_stop_transmit_fn_t)stop_transmit,
+	.write_data = (sc_adaptor_write_data_fn_t)write_data,
+	.write_cmd = (sc_adaptor_write_cmd_fn_t)write_cmd,
 };
 
 int SPI1_write(unsigned char data)
@@ -26,31 +30,33 @@ int SPI1_write(unsigned char data)
 	return 0;
 }
 
-static int write_data(struct st7789_adaptor_ch32v_hwspi *self, int data)
+static int start_transmit(struct st7789_adaptor_ch32v_hwspi *self)
 {
 	/// CS = 0;
-	GPIO_ResetBits(GPIOA, GPIO_Pin_4);
-	/// DC = 1;
-	GPIO_SetBits(GPIOA, GPIO_Pin_3);
+	GPIOA->BCR = GPIO_Pin_4;
+	return 0;
+}
 
-	SPI1_write(data);
-
+static int stop_transmit(struct st7789_adaptor_ch32v_hwspi *self)
+{
 	/// CS = 1;
-	GPIO_SetBits(GPIOA, GPIO_Pin_4);
+	GPIOA->BSHR = GPIO_Pin_4;
+	return 0;
+}
+
+static int write_data(struct st7789_adaptor_ch32v_hwspi *self, int data)
+{
+	/// DC = 1;
+	GPIOA->BSHR = GPIO_Pin_3;
+	SPI1_write(data);
 	return 0;
 }
 
 static int write_cmd(struct st7789_adaptor_ch32v_hwspi *self, int cmd)
 {
-	/// CS = 0;
-	GPIO_ResetBits(GPIOA, GPIO_Pin_4);
 	/// DC = 0;
-	GPIO_ResetBits(GPIOA, GPIO_Pin_3);
-
+	GPIOA->BCR = GPIO_Pin_3;
 	SPI1_write(cmd);
-
-	/// CS = 1;
-	GPIO_SetBits(GPIOA, GPIO_Pin_4);
 	return 0;
 }
 
