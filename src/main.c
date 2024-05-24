@@ -1,5 +1,6 @@
-#include "sc_ssd1306.h"
+#include "sc_adaptor.h"
 #include "sc_ssd1306_ch32v_i2c.h"
+#include "sc_ssd1306_i2c.h"
 #include "sc_st7789.h"
 #include "sc_st7789_ch32v_fsmc.h"
 #include "sc_st7789_ch32v_hwspi.h"
@@ -45,11 +46,12 @@ int fancy_display(struct sc_painter *painter)
 	return 0;
 }
 
-int screen_1_init(struct ssd1306_screen *screen, struct ssd1306_adaptor_ch32v_i2c *adaptor)
+int screen_1_init(struct ssd1306_i2c_screen *screen, struct ssd1306_adaptor_ch32v_i2c *adaptor)
 {
+	/// The I2C address for SSD1306 is 0x3C or 0x3D. The LSB depends on SA0 (D/C pin acts as SA0).
 	if (ssd1306_adaptor_ch32v_i2c_init(adaptor, 0x3C))
 		return 1;
-	if (ssd1306_init(screen, (struct ssd1306_adaptor_i **)adaptor))
+	if (ssd1306_init(screen, (struct sc_adaptor_i2c_i **)adaptor))
 		return 2;
 	if (ssd1306_display_on(screen))
 		return 3;
@@ -264,7 +266,7 @@ int compass_display(struct sc_painter *painter)
 int main()
 {
 	struct ssd1306_adaptor_ch32v_i2c adaptor1;
-	struct ssd1306_screen screen1;
+	struct ssd1306_i2c_screen screen1;
 	// struct st7735_adaptor_ch32v_spi adaptor2;
 	// struct st7735_screen screen2;
 	// struct st7789_adaptor_ch32v_fsmc adaptor3;
