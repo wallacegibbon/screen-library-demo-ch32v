@@ -109,9 +109,11 @@ int lcd_bg_set_brightness(uint16_t brightness)
 
 int screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc *adaptor)
 {
+	struct point screen_size = {240, 320};
+
 	if (st7789_adaptor_ch32v_fsmc_init(adaptor))
 		return 1;
-	if (st7789_init(screen, (struct sc_adaptor_i **)adaptor))
+	if (st7789_init(screen, (struct sc_adaptor_i **)adaptor, screen_size))
 		return 2;
 
 	// GPIO_SetBits(GPIOB, GPIO_Pin_14);
@@ -125,9 +127,11 @@ int screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc
 
 int screen_4_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_hwspi *adaptor)
 {
+	struct point screen_size = {240, 320};
+
 	if (st7789_adaptor_ch32v_hwspi_init(adaptor))
 		return 1;
-	if (st7789_init(screen, (struct sc_adaptor_i **)adaptor))
+	if (st7789_init(screen, (struct sc_adaptor_i **)adaptor, screen_size))
 		return 2;
 
 	return 0;
@@ -147,12 +151,12 @@ int graphic_play(struct sc_painter *painter)
 	sc_text_painter_init(&text_painter, painter);
 
 	color_pair_init(&text_painter.color, RED_24bit, BLACK_24bit);
-	point_init(&text_painter.pos, 0, 0);
+	point_init(&text_painter.pos, 0, 36);
 
 	sc_text_draw_string(&text_painter, "1.5 Programming!", 32);
 
 	color_pair_init(&text_painter.color, GREEN_24bit, BLACK_24bit);
-	point_init(&text_painter.pos, 0, 32);
+	point_init(&text_painter.pos, 0, 72);
 
 	sc_text_draw_string(&text_painter, "1.5 Programming!", 16);
 

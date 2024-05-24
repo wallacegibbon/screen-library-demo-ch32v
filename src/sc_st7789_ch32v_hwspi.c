@@ -48,7 +48,10 @@ static int write_data(struct st7789_adaptor_ch32v_hwspi *self, int data)
 {
 	/// DC = 1;
 	GPIOA->BSHR = GPIO_Pin_3;
+	/// Setting CS in `start_transmit` and `stop_transmit` is not working
+	GPIOA->BCR = GPIO_Pin_4;
 	SPI1_write(data);
+	GPIOA->BSHR = GPIO_Pin_4;
 	return 0;
 }
 
@@ -56,7 +59,10 @@ static int write_cmd(struct st7789_adaptor_ch32v_hwspi *self, int cmd)
 {
 	/// DC = 0;
 	GPIOA->BCR = GPIO_Pin_3;
+	/// Setting CS in `start_transmit` and `stop_transmit` is not working
+	GPIOA->BCR = GPIO_Pin_4;
 	SPI1_write(cmd);
+	GPIOA->BSHR = GPIO_Pin_4;
 	return 0;
 }
 
