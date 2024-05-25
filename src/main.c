@@ -1,19 +1,17 @@
-#include "sc_adaptor.h"
-#include "sc_ssd1306_ch32v_i2c.h"
-#include "sc_ssd1306_i2c.h"
-#include "sc_st7789.h"
-#include "sc_st7789_ch32v_fsmc.h"
-#include "sc_st7789_ch32v_hwspi.h"
-// #include "sc_st7735_ch32v_spi.h"
 #include "camera_ov2640.h"
 #include "ch32v30x.h"
 #include "ch32v_debug.h"
 #include "core_systick.h"
+#include "sc_adaptor.h"
+#include "sc_adaptor_ch32v_fsmc.h"
+#include "sc_adaptor_ch32v_hwspi.h"
+#include "sc_adaptor_i2c_ch32v.h"
 #include "sc_color.h"
 #include "sc_common.h"
 #include "sc_painter.h"
+#include "sc_ssd1306_i2c.h"
 #include "sc_st7735.h"
-#include "sc_st7789_ch32v_hwspi.h"
+#include "sc_st7789.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -46,10 +44,10 @@ int fancy_display(struct sc_painter *painter)
 	return 0;
 }
 
-int screen_1_init(struct ssd1306_i2c_screen *screen, struct ssd1306_adaptor_ch32v_i2c *adaptor)
+int screen_1_init(struct ssd1306_i2c_screen *screen, struct sc_adaptor_i2c_ch32v *adaptor)
 {
 	/// The I2C address for SSD1306 is 0x3C or 0x3D. The LSB depends on SA0 (D/C pin acts as SA0).
-	if (ssd1306_adaptor_ch32v_i2c_init(adaptor, 0x3C))
+	if (sc_adaptor_i2c_ch32v_init(adaptor, 0x3C))
 		return 1;
 	if (ssd1306_init(screen, (struct sc_adaptor_i2c_i **)adaptor))
 		return 2;
@@ -107,11 +105,11 @@ int lcd_bg_set_brightness(uint16_t brightness)
 	return 0;
 }
 
-int screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc *adaptor)
+int screen_3_init(struct st7789_screen *screen, struct sc_adaptor_ch32v_fsmc *adaptor)
 {
 	struct point screen_size = {240, 320};
 
-	if (st7789_adaptor_ch32v_fsmc_init(adaptor))
+	if (sc_adaptor_ch32v_fsmc_init(adaptor))
 		return 1;
 	if (st7789_init(screen, (struct sc_adaptor_i **)adaptor, screen_size))
 		return 2;
@@ -125,13 +123,25 @@ int screen_3_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_fsmc
 	return 0;
 }
 
-int screen_4_init(struct st7789_screen *screen, struct st7789_adaptor_ch32v_hwspi *adaptor)
+int screen_4_init(struct st7789_screen *screen, struct sc_adaptor_ch32v_hwspi *adaptor)
 {
 	struct point screen_size = {240, 320};
 
-	if (st7789_adaptor_ch32v_hwspi_init(adaptor))
+	if (sc_adaptor_ch32v_hwspi_init(adaptor))
 		return 1;
 	if (st7789_init(screen, (struct sc_adaptor_i **)adaptor, screen_size))
+		return 2;
+
+	return 0;
+}
+
+int screen_5_init(struct st7735_screen *screen, struct sc_adaptor_ch32v_hwspi *adaptor)
+{
+	struct point screen_size = {160, 80};
+
+	if (sc_adaptor_ch32v_hwspi_init(adaptor))
+		return 1;
+	if (st7735_init(screen, (struct sc_adaptor_i **)adaptor, screen_size))
 		return 2;
 
 	return 0;
@@ -150,15 +160,17 @@ int graphic_play(struct sc_painter *painter)
 	/// text drawing
 	sc_text_painter_init(&text_painter, painter);
 
-	color_pair_init(&text_painter.color, RED_24bit, BLACK_24bit);
-	point_init(&text_painter.pos, 0, 36);
-
-	sc_text_draw_string(&text_painter, "1.5 Programming!", 32);
-
 	color_pair_init(&text_painter.color, GREEN_24bit, BLACK_24bit);
-	point_init(&text_painter.pos, 0, 72);
+	point_init(&text_painter.pos, 0, 0);
+	//point_init(&text_painter.pos, 0, 72);
 
 	sc_text_draw_string(&text_painter, "1.5 Programming!", 16);
+
+	color_pair_init(&text_painter.color, RED_24bit, BLACK_24bit);
+	point_init(&text_painter.pos, 0, 16);
+	//point_init(&text_painter.pos, 0, 36);
+
+	sc_text_draw_string(&text_painter, "1.5 Programming!", 32);
 
 	sc_painter_size(painter, &size);
 
@@ -269,39 +281,39 @@ int compass_display(struct sc_painter *painter)
 
 int main()
 {
-	struct ssd1306_adaptor_ch32v_i2c adaptor1;
-	struct ssd1306_i2c_screen screen1;
-	// struct st7735_adaptor_ch32v_spi adaptor2;
-	// struct st7735_screen screen2;
-	// struct st7789_adaptor_ch32v_fsmc adaptor3;
-	// struct st7789_screen screen3;
-	struct st7789_adaptor_ch32v_hwspi adaptor4;
-	struct st7789_screen screen4;
+	// struct ssd1306_i2c_screen screen;
+	// struct st7735_screen screen;
+	struct st7789_screen screen;
+
+	// struct sc_adaptor_i2c_ch32v adaptor;
+	// struct sc_adaptor_ch32v_fsmc adaptor;
+	struct sc_adaptor_ch32v_hwspi adaptor;
+
 	struct sc_painter painter;
 
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 	systick_interrupt_init();
 
-	// screen_1_init(&screen1, &adaptor1);
-	// screen_2_init(&screen2, &adaptor2);
-	// screen_3_init(&screen3, &adaptor3);
-	screen_4_init(&screen4, &adaptor4);
+	// screen_1_init(&screen, &adaptor);
+	// screen_2_init(&screen, &adaptor);
+	// screen_3_init(&screen, &adaptor);
+	// screen_4_init(&screen, &adaptor);
+	screen_5_init(&screen, &adaptor);
 
-	// SSD1306_Screen_set_up_down_invert(&screen1);
+	// SSD1306_Screen_set_up_down_invert(&screen);
 
-	// painter.drawing_board = (struct drawing_i **)&screen1;
-	// painter.drawing_board = (struct drawing_i **)&screen2;
-	// painter.drawing_board = (struct drawing_i **)&screen3;
-	painter.drawing_board = (struct drawing_i **)&screen4;
+	sc_painter_init(&painter, (struct drawing_i **)&screen);
 
 	usart_printf_init(115200);
 	printf("System is ready now. SystemClk: %lu\r\n", SystemCoreClock);
 
-	// camera_display(&painter, &screen3);
+	// camera_display(&painter, &screen);
+
 	graphic_play(&painter);
 	// compass_display(&painter);
 
 	while (1)
 		;
+
 	return 0;
 }
