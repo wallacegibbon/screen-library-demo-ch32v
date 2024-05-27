@@ -162,13 +162,13 @@ int graphic_play(struct sc_painter *painter)
 
 	color_pair_init(&text_painter.color, GREEN_24bit, BLACK_24bit);
 	point_init(&text_painter.pos, 0, 0);
-	//point_init(&text_painter.pos, 0, 72);
+	// point_init(&text_painter.pos, 0, 72);
 
 	sc_text_draw_string(&text_painter, "1.5 Programming!", 16);
 
 	color_pair_init(&text_painter.color, RED_24bit, BLACK_24bit);
 	point_init(&text_painter.pos, 0, 16);
-	//point_init(&text_painter.pos, 0, 36);
+	// point_init(&text_painter.pos, 0, 36);
 
 	sc_text_draw_string(&text_painter, "1.5 Programming!", 32);
 
@@ -297,8 +297,8 @@ int main()
 	// screen_1_init(&screen, &adaptor);
 	// screen_2_init(&screen, &adaptor);
 	// screen_3_init(&screen, &adaptor);
-	// screen_4_init(&screen, &adaptor);
-	screen_5_init(&screen, &adaptor);
+	screen_4_init(&screen, &adaptor);
+	// screen_5_init(&screen, &adaptor);
 
 	// SSD1306_Screen_set_up_down_invert(&screen);
 
