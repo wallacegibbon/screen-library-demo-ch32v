@@ -5,7 +5,7 @@
 #include "sc_adaptor.h"
 #include "sc_adaptor_ch32v_fsmc.h"
 #include "sc_adaptor_ch32v_hwspi.h"
-#include "sc_byte_adaptor_ch32v.h"
+#include "sc_byte_adaptor_ch32v_hwi2c.h"
 #include "sc_color.h"
 #include "sc_common.h"
 #include "sc_painter.h"
@@ -44,10 +44,10 @@ int fancy_display(struct sc_painter *painter)
 	return 0;
 }
 
-int screen_1_init(struct ssd1306_i2c_screen *screen, struct sc_byte_adaptor_ch32v *adaptor)
+int screen_1_init(struct ssd1306_i2c_screen *screen, struct sc_byte_adaptor_ch32v_hwi2c *adaptor)
 {
 	/// The I2C address for SSD1306 is 0x3C or 0x3D. The LSB depends on SA0 (D/C pin acts as SA0).
-	if (sc_byte_adaptor_ch32v_init(adaptor, 0x3C))
+	if (sc_byte_adaptor_ch32v_hwi2c_init(adaptor, 0x3C))
 		return 1;
 	if (ssd1306_init(screen, (struct sc_byte_adaptor_i **)adaptor))
 		return 2;
